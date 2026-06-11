@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"player\\\\|gardener\\\\|character\\\\|left:\\\\|top:\\\\|position.*px\" \"/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/Prototyp/index.html\" | grep -i \"player\\\\|gardener\\\\|\\\\.pos\\\\|playerX\\\\|playerY\" | head -20)",
+      "Bash(ls \"/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/\")",
+      "Bash(ls \"/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/\")",
+      "Bash(sed -i '' \\\\ *)",
+      "Bash(mv \"/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/Prototyp/assets/Plants/Frühblueher\" \\\\ *)",
+      "Bash(mv '/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/Prototyp/assets/Plants/Sommerblueher/Weiße_Taubnessel.png' '/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/Prototyp/assets/Plants/Sommerblueher/Weisse_Taubnessel.png')",
+      "Bash(mv '/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/Prototyp/assets/Plants/Fruehblueher/Schlüsselblume.png' '/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/Prototyp/assets/Plants/Fruehblueher/Schlusselblume.png')",
+      "Bash(sed -n '148,160p' \"/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/Prototyp/index.html\")",
+      "Bash(sed -n '345,355p' \"/Users/jules/Library/Mobile Documents/com~apple~CloudDocs/Uni /Master/Biologie /Masterarbeit/Prototyp/index.html\")"
+    ]
+  }
+}

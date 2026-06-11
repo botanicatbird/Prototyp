@@ -1,0 +1,4268 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>scavengerHunt</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #3a3a3a;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #3a3a3a;
+  font-family: 'Nunito', sans-serif;
+}
+
+#phone-shell {
+  position: relative;
+  width: 390px;
+  height: 844px;
+  overflow: hidden;
+  box-shadow: 0 8px 60px rgba(0,0,0,0.7);
+  border-radius: 12px;
+  transform: translateZ(0);
+}
+
+:root {
+  --sage:        #c0d1ba;
+  --nav-bg:      rgba(126, 155, 122, 0.93);
+  --cream:       #f5f0e5;
+  --beige-card:  #ede8dc;
+  --parchment:   #fdf6e3;
+  --ink:         #3d2b1f;
+  --muted:       #7a6552;
+  --brown-border:#8B6848;
+  --orange:      #e08a15;
+  --green-dark:  #2e7d32;
+  --green-mid:   #558b2f;
+  --green-light: #e8f5e9;
+  --shadow:      0 5px 24px rgba(50, 40, 20, 0.14);
+}
+
+/* ===================== MAP BACKGROUND ===================== */
+.map-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #c0d1ba;
+}
+.map-bg svg { width: 100%; height: 100%; }
+
+/* ===================== FLOATING LEFT NAV ===================== */
+.left-nav {
+  position: fixed;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 58px;
+  border-radius: 30px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0 16px;
+  gap: 6px;
+  box-shadow: 0 4px 22px rgba(40, 60, 40, 0.2);
+}
+
+.nav-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-size: 21px;
+  position: relative;
+  background: transparent;
+}
+
+.nav-icon-btn.settings-btn {
+  background: rgba(255, 255, 255, 0.32);
+  margin-bottom: 6px;
+}
+
+.nav-icon-btn.nav-item {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.nav-icon-btn.nav-item:hover {
+  background: rgba(255, 255, 255, 0.38);
+  transform: scale(1.08);
+}
+
+.nav-icon-btn.nav-item.active {
+  background: rgba(255, 255, 255, 0.48);
+  transform: scale(1.06);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+
+.nav-badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  background: #ef5350;
+  color: white;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.nav-divider {
+  width: 30px;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  margin: 2px 0;
+}
+
+/* ===================== TOP-RIGHT BADGES ===================== */
+.top-bar {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+  z-index: 50;
+}
+
+.top-badge {
+  background: var(--nav-bg);
+  backdrop-filter: blur(8px);
+  color: white;
+  border-radius: 50px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 10px rgba(40, 60, 40, 0.18);
+  white-space: nowrap;
+}
+
+/* ===================== SCAN FAB ===================== */
+.scan-fab {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: #7d9e7a;
+  border: 4px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 6px 24px rgba(50, 90, 50, 0.32);
+  cursor: pointer;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: all 0.2s;
+}
+
+.scan-fab:hover {
+  transform: translateX(-50%) scale(1.07);
+  box-shadow: 0 8px 30px rgba(50, 90, 50, 0.4);
+}
+
+.scan-fab.scanning {
+  animation: scanWiggle 0.28s ease-in-out infinite;
+}
+
+@keyframes scanWiggle {
+  0%, 100% { transform: translateX(-50%) rotate(-5deg); }
+  50%       { transform: translateX(-50%) rotate(5deg); }
+}
+
+/* ===================== FLORIN – PEDAGOGICAL AGENT ===================== */
+/* Florin is the interactive gardener character standing on the homescreen. */
+/* Clicking him opens the chatbot panel.                                    */
+
+.florin-wrap {
+  position: fixed;
+  bottom: 105px;
+  right: 20px;
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Speech bubble above Florin */
+.florin-bubble {
+  background: rgba(255, 250, 235, 0.97);
+  border: 1.5px solid rgba(180, 150, 90, 0.30);
+  border-radius: 14px 14px 14px 4px;
+  padding: 6px 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4a3a1e;
+  white-space: nowrap;
+  box-shadow: 0 3px 12px rgba(50, 40, 20, 0.14);
+  margin-bottom: 7px;
+  pointer-events: none;
+  animation: bubbleFloat 5s ease-in-out infinite;
+}
+/* Bubble tail */
+.florin-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  right: 16px;
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 0 solid transparent;
+  border-top: 9px solid rgba(255, 250, 235, 0.97);
+}
+
+@keyframes bubbleFloat {
+  0%,  100% { opacity: 1;   transform: translateY(0px);  }
+  45%        { opacity: 1;   transform: translateY(-3px); }
+  80%,  90%  { opacity: 0.6; transform: translateY(-1px); }
+  85%        { opacity: 0.8; transform: translateY(-2px); }
+}
+
+/* Hide bubble while chatbot panel is open */
+#nav-chatbot.active .florin-bubble {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Figure wrapper – carries the bob animation so equipment items move with Florin */
+.florin-figure {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  animation: florinBob 3.0s ease-in-out infinite;
+}
+
+/* Equipment overlay layer – absolutely fills the figure, items inside are positioned freely */
+#florinEquipLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Individual equipment item (emoji placeholder or future PNG) */
+.florin-equip-item {
+  position: absolute;
+  pointer-events: none;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.22));
+  transition: opacity 0.2s ease;
+}
+
+/* The character image – filter/transition only, no animation (lives on .florin-figure now) */
+.florin-img {
+  width: 120px;
+  height: auto;
+  display: block;
+  image-rendering: auto;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
+  transition: filter 0.2s ease;
+  position: relative;
+  z-index: 0;
+}
+
+@keyframes florinBob {
+  0%   { transform: translateY(0px)   rotate(-1.2deg) scaleY(1);     }
+  28%  { transform: translateY(-5px)  rotate(0.4deg)  scaleY(1.02);  }
+  55%  { transform: translateY(-8px)  rotate(1.6deg)  scaleY(1);     }
+  78%  { transform: translateY(-3px)  rotate(-0.4deg) scaleY(1.01);  }
+  100% { transform: translateY(0px)   rotate(-1.2deg) scaleY(1);     }
+}
+
+/* Hover: glow slightly */
+.florin-wrap:hover .florin-img {
+  filter: drop-shadow(0 8px 16px rgba(80, 140, 60, 0.38)) brightness(1.06);
+}
+
+/* Active (chatbot open): warm orange glow, pause bob */
+#nav-chatbot.active .florin-figure {
+  animation-play-state: paused;
+}
+#nav-chatbot.active .florin-img {
+  filter: drop-shadow(0 6px 16px rgba(224, 138, 21, 0.55)) brightness(1.08);
+}
+
+/* Ground shadow under Florin */
+.florin-shadow {
+  width: 80px;
+  height: 16px;
+  background: rgba(15, 50, 8, 0.18);
+  border-radius: 50%;
+  filter: blur(5px);
+  margin-top: -8px;
+  transition: width 0.2s ease;
+}
+.florin-wrap:hover .florin-shadow {
+  width: 90px;
+}
+
+/* ===================== SCAN FEEDBACK ===================== */
+/* Trophäen-Freischalt-Benachrichtigung */
+#trophyUnlockToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  background: var(--cream);
+  border: 2.5px solid var(--brown-border);
+  border-radius: 24px;
+  padding: 22px 28px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(60,35,10,0.22);
+  z-index: 200;
+  display: none;
+  min-width: 220px;
+  animation: trophyPop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes trophyPop {
+  from { opacity:0; transform:translate(-50%,-50%) scale(0.7); }
+  to   { opacity:1; transform:translate(-50%,-50%) scale(1);   }
+}
+#trophyUnlockToast img { width:64px; height:64px; object-fit:contain; margin-bottom:10px; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.18)); }
+#trophyUnlockToast .trophy-toast-label { font-size:10px; font-weight:800; letter-spacing:0.1em; color:var(--muted); margin-bottom:4px; }
+#trophyUnlockToast .trophy-toast-name  { font-family:'Lora',serif; font-size:18px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+#trophyUnlockToast .trophy-toast-desc  { font-size:11px; font-weight:600; color:var(--muted); }
+
+#scanFeedback {
+  position: fixed;
+  bottom: 116px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 250, 240, 0.97);
+  border-radius: 50px;
+  padding: 10px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  z-index: 50;
+  display: none;
+  animation: fadeInUp 0.28s ease;
+}
+
+/* ===================== PANEL OVERLAYS ===================== */
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60; /* über Nav-Pill (50) und Florin (55) */
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 70px 14px 110px 14px; /* symmetrisch – Nav wird überdeckt */
+  overflow-y: auto;
+  background: rgba(140, 165, 138, 0.18);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.panel-overlay.active {
+  display: flex;
+  animation: fadeInUp 0.24s ease;
+}
+
+/* click-outside close area */
+.panel-overlay-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.panel-card {
+  background: var(--cream);
+  border: 3px solid var(--brown-border);
+  border-radius: 24px;
+  padding: 20px 18px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 6px 28px rgba(70, 45, 15, 0.18);
+  animation: fadeInUp 0.26s ease;
+  position: relative;
+}
+
+/* Herbarium card: fixed height, content scrolls inside */
+#panel-herbarium .panel-card {
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Quiz panel: kein Scrollen, Inhalt passt komplett rein */
+#panel-quiz {
+  padding: 12px 14px;
+}
+#panel-quiz .panel-card {
+  max-height: calc(100% - 24px);
+  width: 100%;
+  padding: 14px 15px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#panel-quiz #quizContent {
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+#herb-tab-welten,
+#herb-tab-familien,
+#herb-tab-trophies {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 6px;
+}
+
+.panel-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: rgba(120, 90, 40, 0.12);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: background 0.15s;
+}
+.panel-close-btn:hover { background: rgba(120, 90, 40, 0.22); }
+
+.panel-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 16px;
+  padding-right: 28px;
+}
+
+/* ===================== TO-DO CARDS ===================== */
+.todo-card {
+  background: var(--beige-card);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  transition: opacity 0.2s;
+}
+.todo-card:last-child { margin-bottom: 0; }
+
+.todo-card.done { opacity: 0.5; }
+.todo-card.done .todo-title { text-decoration: line-through; }
+
+.todo-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.todo-body { flex: 1; min-width: 0; }
+
+.todo-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.todo-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.todo-xp {
+  font-size: 12px;
+  font-weight: 800;
+  color: #3a7d3a;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.todo-desc {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 5px;
+}
+
+.todo-tag {
+  display: inline-block;
+  background: rgba(50, 85, 50, 0.11);
+  color: #3a5a3a;
+  border-radius: 50px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ===================== BASKET ===================== */
+.basket-item {
+  background: var(--beige-card);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  animation: fadeInUp 0.28s ease;
+}
+.basket-item:last-child { margin-bottom: 0; }
+
+.basket-emoji { font-size: 42px; line-height: 1; flex-shrink: 0; }
+
+.basket-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.basket-name { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1.3; }
+.basket-latin { font-size: 12px; color: var(--muted); font-style: italic; }
+.basket-family { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+.btn-determine {
+  background: var(--green-dark);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 7px 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s;
+  align-self: flex-start;
+  line-height: 1.3;
+  text-align: center;
+}
+.btn-determine:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(46, 125, 50, 0.32);
+}
+
+/* ===================== HERBARIUM ===================== */
+.herb-grid {
+  display: grid;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: 124px;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  /* dezente, dünne Scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139,104,72,0.28) transparent;
+}
+.herb-grid::-webkit-scrollbar        { height: 4px; }
+.herb-grid::-webkit-scrollbar-track  { background: transparent; }
+.herb-grid::-webkit-scrollbar-thumb  {
+  background: rgba(139,104,72,0.32);
+  border-radius: 4px;
+}
+
+.herb-card {
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.18s;
+  aspect-ratio: 3/4;
+  display: flex;
+  flex-direction: column;
+  background: var(--beige-card);
+  border: 1.5px solid rgba(139,104,72,0.22);
+}
+.herb-card:hover { transform: translateY(-3px); }
+.herb-card.locked { filter: grayscale(0.6); opacity: 0.42; cursor: default; }
+.herb-emoji { display: flex; align-items: center; justify-content: center; flex: 1; }
+.herb-name {
+  font-size: 10px; font-weight: 800; padding: 5px 6px; text-align: center;
+  line-height: 1.3; background: rgba(139,104,72,0.12); color: var(--ink);
+}
+
+/* ---- plant photo gallery in steckbrief ---- */
+.plant-gallery {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.gallery-frame {
+  flex: 1;
+  background: var(--beige-card);
+  border: 1.5px solid rgba(139,104,72,0.22);
+  border-radius: 16px;
+  padding: 14px 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+.gallery-img-wrap {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.gallery-img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.18));
+  transition: transform 0.32s ease, filter 0.32s ease;
+}
+/* Photo slides look like a real taken snapshot */
+.gallery-img--photo {
+  filter: saturate(1.22) contrast(1.07) brightness(0.96)
+          drop-shadow(0 4px 10px rgba(0,0,0,0.22));
+  outline: 2.5px solid rgba(255,255,255,0.80);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.gallery-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.gallery-dots {
+  display: flex;
+  gap: 5px;
+}
+.gallery-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(139,104,72,0.25);
+  transition: background 0.22s;
+}
+.gallery-dot.active { background: var(--green-dark); }
+.gallery-arrow {
+  background: rgba(139,104,72,0.12);
+  border: 1.5px solid rgba(139,104,72,0.20);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.18s;
+}
+.gallery-arrow:hover { background: rgba(139,104,72,0.25); }
+
+/* ===================== TABS ===================== */
+.tab-bar {
+  display: flex;
+  border-bottom: 1.5px solid rgba(120, 90, 40, 0.18);
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+.tab-btn {
+  flex: 1;
+  padding: 8px 6px;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.tab-btn.active { color: var(--green-dark); border-bottom-color: var(--green-dark); }
+
+/* ===================== TROPHY ITEMS ===================== */
+.trophy-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 13px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  border: 1.5px solid rgba(120, 90, 40, 0.14);
+  margin-bottom: 8px;
+}
+.trophy-icon {
+  font-size: 28px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.trophy-item.locked { opacity: 0.42; filter: grayscale(0.7); }
+
+/* Equip button inside trophy card */
+.btn-equip {
+  background: var(--green-dark);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 4px 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: all 0.18s;
+  display: inline-block;
+}
+.btn-equip:hover { transform: scale(1.06); box-shadow: 0 2px 8px rgba(46,125,50,0.28); }
+.btn-equip.equipped {
+  background: rgba(120, 90, 40, 0.13);
+  color: var(--muted);
+}
+
+/* Green checkmark badge on equipped trophy icon */
+.trophy-equipped-badge {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: #4caf50;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+
+/* ===================== QUIZ (Entscheidungsbaum) ===================== */
+
+/* --- Foto-Kachel (oben im Quiz) --- */
+.quiz-photo-tile {
+  position: relative;
+  background: var(--beige-card);
+  border: 1.5px solid rgba(139,104,72,0.20);
+  border-radius: 20px;
+  overflow: hidden;
+  height: 150px;
+  margin-bottom: 9px;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.quiz-photo-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.quiz-photo-img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+  transition: transform 0.36s ease;
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,0.17));
+}
+.quiz-photo-dots {
+  position: absolute;
+  bottom: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 7px;
+  z-index: 2;
+}
+.quiz-photo-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(139,104,72,0.28);
+  transition: background 0.22s;
+}
+.quiz-photo-dot.active { background: var(--green-dark); }
+.quiz-photo-label {
+  position: absolute;
+  bottom: 28px;
+  right: 11px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(245,240,229,0.84);
+  border-radius: 50px;
+  padding: 3px 9px;
+  pointer-events: none;
+}
+.quiz-zoom-hint {
+  position: absolute;
+  top: 10px;
+  right: 11px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(245,240,229,0.84);
+  border-radius: 50px;
+  padding: 3px 9px;
+  pointer-events: none;
+}
+
+/* --- Fragen-Sprechblase --- */
+.quiz-question-bubble {
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(139,104,72,0.15);
+  border-radius: 18px 18px 18px 6px;
+  padding: 9px 14px;
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 9px;
+}
+
+/* --- Optionskacheln (2-Spalten-Raster) --- */
+.quiz-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+.quiz-option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--beige-card);
+  border: 1.5px solid rgba(139,104,72,0.22);
+  border-radius: 16px;
+  padding: 8px 7px 7px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s, background 0.18s;
+  font-family: 'Nunito', sans-serif;
+  width: 100%;
+}
+.quiz-option-card:hover {
+  border-color: var(--green-dark);
+  background: rgba(232,245,233,0.55);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(46,125,50,0.12);
+}
+.quiz-option-card:active { transform: scale(0.97); }
+/* Ungerade letzte Option: überspannt beide Spalten, horizontal layout */
+.quiz-option-card.full-width {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  gap: 11px;
+  text-align: left;
+  padding: 11px 13px;
+}
+.quiz-img-wrap {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+.quiz-option-card.full-width .quiz-img-wrap { margin-bottom: 0; }
+.quiz-img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.quiz-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12)); }
+.quiz-opt-text { width: 100%; }
+.quiz-option-card.full-width .quiz-opt-text { flex: 1; text-align: left; }
+.quiz-opt-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+.quiz-opt-desc {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+/* --- Florin-Tipp --- */
+.quiz-hint-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: transparent;
+  border: 1.5px solid rgba(139,104,72,0.25);
+  border-radius: 50px;
+  padding: 7px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 12px;
+  transition: all 0.18s;
+}
+.quiz-hint-btn:hover {
+  border-color: rgba(139,104,72,0.50);
+  color: var(--ink);
+  background: rgba(139,104,72,0.06);
+}
+.quiz-florin-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  background: rgba(245,240,229,0.92);
+  border: 1.5px solid rgba(139,104,72,0.20);
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 11px;
+  animation: fadeInUp 0.25s ease;
+}
+.quiz-florin-avatar {
+  width: 38px; height: 38px;
+  flex-shrink: 0;
+  object-fit: contain;
+  border-radius: 50%;
+  background: rgba(192,209,186,0.40);
+}
+.quiz-florin-text {
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.55;
+  font-style: italic;
+  font-family: 'Lora', serif;
+}
+
+/* --- Herbarium-Karte Highlight (nach Bestimmung) --- */
+.herb-card-highlight {
+  border-color: var(--green-dark) !important;
+  box-shadow: 0 0 0 3px rgba(46,125,50,0.22), 0 4px 16px rgba(46,125,50,0.16) !important;
+  animation: herbCardPop 0.55s ease;
+}
+@keyframes herbCardPop {
+  0%   { transform: scale(1);    }
+  45%  { transform: scale(1.07); }
+  100% { transform: scale(1);    }
+}
+
+/* ===================== CHATBOT ===================== */
+.chat-messages {
+  max-height: 38vh;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-right: 2px;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: rgba(120,90,40,0.2); border-radius: 4px; }
+
+.chat-bubble {
+  padding: 9px 13px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.55;
+  max-width: 92%;
+}
+.chat-bubble.bot {
+  background: #e5ede2;
+  color: var(--ink);
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+}
+.chat-bubble.user {
+  background: var(--green-dark);
+  color: white;
+  border-bottom-right-radius: 4px;
+  align-self: flex-end;
+}
+
+.chat-input-row { display: flex; gap: 8px; }
+
+.chat-input {
+  flex: 1;
+  border: 2px solid rgba(120, 90, 40, 0.2);
+  border-radius: 50px;
+  padding: 9px 15px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.65);
+  outline: none;
+  transition: border-color 0.18s;
+}
+.chat-input:focus { border-color: var(--green-dark); }
+
+.chat-send {
+  background: var(--green-dark);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 9px 18px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.chat-send:hover { transform: scale(1.05); }
+
+.fortbild-card {
+  background: #fdf4e0;
+  border: 1.5px dashed rgba(170, 120, 20, 0.38);
+  border-radius: 13px;
+  padding: 11px 13px;
+  margin-bottom: 8px;
+}
+/* Active / clickable lesson card */
+.fortbild-card--active {
+  background: linear-gradient(135deg, #fdf4e0 0%, #fce9b8 100%);
+  border: 2px solid rgba(170, 120, 20, 0.55);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 3px 10px rgba(120, 80, 0, 0.12);
+}
+.fortbild-card--active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(120, 80, 0, 0.18);
+}
+.fortbild-card--active:active { transform: scale(0.97); }
+
+.fortbild-level-badge {
+  display: inline-block;
+  background: rgba(46, 125, 50, 0.13);
+  color: #2e7d32;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  border-radius: 50px;
+  padding: 2px 9px;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.fortbild-title { font-size: 12px; font-weight: 800; color: #7d5a00; margin-bottom: 3px; }
+.fortbild-text  { font-size: 12px; color: #5d4037; line-height: 1.55; font-weight: 600; }
+.fortbild-start-btn {
+  margin-top: 10px;
+  display: inline-block;
+  background: var(--green-dark);
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 50px;
+  padding: 6px 16px;
+  letter-spacing: 0.3px;
+}
+
+/* Lern-Session panel content */
+.lernsession-header {
+  text-align: center;
+  padding: 8px 0 18px;
+}
+.lernsession-title {
+  font-family: 'Lora', serif;
+  font-size: 20px;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+.lernsession-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.lernsession-placeholder {
+  background: var(--beige-card);
+  border: 1.5px dashed rgba(139,104,72,0.3);
+  border-radius: 16px;
+  padding: 28px 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.lernsession-complete-btn {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px;
+  background: var(--green-dark);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.lernsession-complete-btn:hover  { transform: scale(1.02); }
+.lernsession-complete-btn:active { transform: scale(0.97); }
+
+/* ===================== LORE BOX ===================== */
+.lore-box {
+  background: linear-gradient(135deg, #fdf6e3, #fef9f0);
+  border: 1.5px dashed rgba(180, 140, 60, 0.35);
+  border-radius: 13px;
+  padding: 13px;
+  font-family: 'Lora', serif;
+  font-style: italic;
+}
+
+/* ===================== BUTTONS ===================== */
+.btn-primary {
+  background: var(--green-dark);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 11px 26px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.24);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(46, 125, 50, 0.34); }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--ink);
+  border: 1.5px solid rgba(120, 90, 40, 0.22);
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.88); }
+
+/* ===================== PLANT POPUP ===================== */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(50, 35, 15, 0.44);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.popup-sheet {
+  background: var(--parchment);
+  border-radius: 26px 26px 0 0;
+  padding: 26px 22px 38px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: popIn 0.28s ease;
+}
+.popup-drag {
+  width: 38px;
+  height: 4px;
+  background: rgba(120, 100, 80, 0.28);
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+
+/* ===================== CAMERA VIEWFINDER ===================== */
+#cameraOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: var(--cream);
+  display: none;
+  flex-direction: column;
+}
+#cameraOverlay.open { display: flex; }
+
+.cam-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px;
+  background: var(--cream);
+  border-bottom: 1px solid rgba(139,104,72,0.15);
+}
+.cam-close-btn {
+  background: rgba(139,104,72,0.12);
+  border: none;
+  border-radius: 50px;
+  color: var(--muted);
+  padding: 7px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cam-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.cam-viewfinder {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 30% 60%, rgba(144,188,130,0.38) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 30%, rgba(160,200,145,0.28) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 85%, rgba(130,175,118,0.32) 0%, transparent 50%),
+    linear-gradient(170deg, #e8f0e4 0%, #d6e8ce 55%, #c8dfc0 100%);
+}
+
+/* warm sunlight bokeh */
+.cam-viewfinder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle 26px at 22% 35%, rgba(255,255,230,0.60) 0%, transparent 100%),
+    radial-gradient(circle 18px at 68% 20%, rgba(255,255,220,0.50) 0%, transparent 100%),
+    radial-gradient(circle 30px at 80% 65%, rgba(255,255,235,0.45) 0%, transparent 100%),
+    radial-gradient(circle 14px at 35% 75%, rgba(255,255,240,0.55) 0%, transparent 100%),
+    radial-gradient(circle 22px at 55% 42%, rgba(255,255,245,0.38) 0%, transparent 100%),
+    radial-gradient(circle 12px at 12% 60%, rgba(255,255,230,0.45) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* soft leaf silhouettes */
+.cam-viewfinder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 70px 140px at 8% 82%,  rgba(80,130,60,0.16) 0%, transparent 100%),
+    radial-gradient(ellipse 90px 60px  at 92% 88%, rgba(70,120,50,0.13) 0%, transparent 100%),
+    radial-gradient(ellipse 50px 100px at 96% 28%, rgba(75,125,55,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 65px 35px  at 2% 12%,  rgba(70,120,50,0.13) 0%, transparent 100%);
+  filter: blur(12px);
+  pointer-events: none;
+}
+
+/* corner brackets */
+.cam-bracket {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-color: rgba(139,104,72,0.55);
+  border-style: solid;
+}
+.cam-bracket.tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.cam-bracket.tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+.cam-bracket.bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+.cam-bracket.br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+/* focus ring */
+.cam-focus-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  height: 70px;
+  border: 2px solid rgba(80,130,60,0.65);
+  border-radius: 50%;
+  animation: focusPulse 2s ease-in-out infinite;
+}
+@keyframes focusPulse {
+  0%, 100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.65; }
+  50%       { transform: translate(-50%,-50%) scale(1.12); opacity: 1; }
+}
+
+/* scan line */
+.cam-scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--green-dark) 30%, #81c784 50%, var(--green-dark) 70%, transparent 100%);
+  box-shadow: 0 0 10px rgba(46,125,50,0.45);
+  top: 0;
+  display: none;
+  animation: scanLineDown 1.2s ease-in-out;
+}
+@keyframes scanLineDown {
+  from { top: 0%; }
+  to   { top: 100%; }
+}
+
+.cam-hint {
+  position: absolute;
+  top: 50%;
+  left: 16px; right: 16px;
+  transform: translateY(-50%);
+  text-align: center;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  background: rgba(245,240,229,0.88);
+  border-radius: 16px;
+  padding: 10px 14px;
+  pointer-events: none;
+}
+
+.cam-status {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(245,240,229,0.93);
+  color: var(--green-dark);
+  border: 2px solid rgba(46,125,50,0.28);
+  border-radius: 50px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 800;
+  display: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.cam-bottombar {
+  background: var(--beige-card);
+  border-top: 1px solid rgba(139,104,72,0.18);
+  padding: 22px 0 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shutter-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  border: 4px solid rgba(46,125,50,0.28);
+  box-shadow: 0 0 0 6px rgba(46,125,50,0.13), 0 4px 16px rgba(46,125,50,0.28);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+.shutter-btn svg { width: 28px; height: 28px; stroke: white; }
+.shutter-btn:hover  { transform: scale(1.05); }
+.shutter-btn:active { transform: scale(0.94); box-shadow: 0 0 0 3px rgba(46,125,50,0.1); }
+.shutter-btn:disabled { opacity: 0.45; cursor: default; }
+
+.cam-flash {
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 2;
+}
+
+/* ---- 3-step progress dots ---- */
+.cam-step-dots {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 9px;
+  z-index: 3;
+}
+.cam-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid rgba(80,130,60,0.50);
+  background: rgba(255,255,255,0.50);
+  transition: background 0.28s, border-color 0.28s, box-shadow 0.28s;
+}
+.cam-dot.filled {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+  box-shadow: 0 0 6px rgba(46,125,50,0.55);
+}
+
+/* ===================== ANIMATIONS ===================== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  0%  { transform: scale(0.72); opacity: 0; }
+  80% { transform: scale(1.04); }
+  100%{ transform: scale(1);    opacity: 1; }
+}
+@keyframes floatUp {
+  0%   { opacity: 0; transform: translateY(20px) scale(0.8); }
+  60%  { opacity: 1; transform: translateY(-10px) scale(1.06); }
+  100% { opacity: 0; transform: translateY(-42px) scale(0.9); }
+}
+@keyframes confettiDrop {
+  to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  position: fixed;
+  top: -20px;
+  border-radius: 2px;
+  animation: confettiDrop 2.6s ease-in forwards;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.progress-bar-bg  { background: rgba(120,90,40,0.14); border-radius: 10px; height: 8px; overflow: hidden; }
+.progress-bar-fill{ height: 100%; border-radius: 10px; transition: width 0.55s ease; }
+
+/* ===================== SECTION HELPERS ===================== */
+.section-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+/* ===================== MAP PIN MINI-CARD ===================== */
+#mapPinCard {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(40, 55, 40, 0.28);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+#mapPinCard.open { display: flex; }
+
+.map-pin-card-sheet {
+  background: var(--cream);
+  border-radius: 24px 24px 0 0;
+  padding: 18px 22px 30px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 -4px 24px rgba(50, 40, 20, 0.14);
+  animation: popIn 0.24s ease;
+}
+
+/* ===================== NAV & FAB ICONS (PNG-Assets) ===================== */
+
+/* PNG icons inside the left nav pill buttons */
+.nav-icon-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  transition: transform 0.18s ease, filter 0.18s ease;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.18));
+}
+
+/* Hover + active state: scale up slightly and brighten */
+.nav-icon-btn:hover .nav-icon-img {
+  transform: scale(1.10);
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.22)) brightness(1.12);
+}
+.nav-icon-btn.active .nav-icon-img {
+  transform: scale(1.06);
+  filter: drop-shadow(0 1px 6px rgba(255,255,255,0.45)) brightness(1.15);
+}
+
+/* Settings button uses a slightly smaller icon (tighter button) */
+.nav-icon-btn.settings-btn .nav-icon-img {
+  width: 36px;
+  height: 36px;
+}
+
+/* PNG icon inside the scan FAB */
+.fab-icon-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.20));
+  transition: transform 0.18s ease;
+}
+.scan-fab:hover .fab-icon-img {
+  transform: scale(1.06);
+}
+
+/* Lucide SVG fallback – used in top-bar badges, popups, shutter button etc. */
+.nav-icon-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  pointer-events: none;
+}
+.nav-icon-btn { color: rgba(255, 255, 255, 0.88); }
+
+.scan-fab svg {
+  width: 34px;
+  height: 34px;
+  stroke: white;
+  fill: none;
+  stroke-width: 1.8;
+  pointer-events: none;
+}
+/* Shutter button camera icon */
+.shutter-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* ===================== PNG PLANT PINS ===================== */
+/* All pins use real PNG assets — no SVG, no floating animation. */
+/* Plants stand firmly on the map like they are growing there.   */
+
+.pins-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.plant-pin-wrap {
+  position: absolute;
+  pointer-events: all;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* bottom-center of wrapper sits at the map coordinate */
+  transform: translate(-50%, -100%);
+}
+
+/* The plant PNG image — diagonal cast shadow behind the plant */
+.pin-plant-img {
+  width: 96px;
+  height: 122px;
+  object-fit: contain;
+  object-position: bottom center;
+  display: block;
+  filter: drop-shadow(5px 8px 4px rgba(10,40,5,0.38));
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+/* Larger variant for trees / tall plants */
+.pin-plant-img--lg {
+  width: 155px;
+  height: 198px;
+}
+/* Hover: scale-up, shadow bleibt */
+.plant-pin-wrap:hover .pin-plant-img {
+  transform: scale(1.07);
+  filter: drop-shadow(5px 8px 4px rgba(10,40,5,0.32)) brightness(1.06);
+}
+
+/* Contact shadow — no gap because plant base is now at the element's bottom edge */
+.pin-ground-shadow {
+  width: 58px;
+  height: 10px;
+  background: rgba(15, 50, 8, 0.38);
+  border-radius: 50%;
+  filter: blur(5px);
+  margin-top: -5px;        /* minimal overlap only */
+  transition: width 0.2s ease, opacity 0.2s ease;
+}
+.plant-pin-wrap:hover .pin-ground-shadow {
+  width: 64px;
+  opacity: 0.75;
+}
+
+/* Label pill */
+.pin-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  color: #1b5e20;
+  background: rgba(255, 250, 240, 0.92);
+  border-radius: 50px;
+  padding: 2px 9px;
+  margin-top: 5px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  border: 1px solid rgba(180, 150, 100, 0.2);
+}
+
+/* ===================== BADGE INLINE ICONS (top-bar) ===================== */
+.badge-icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
+}
+
+/* ===================== PLANT IMAGES IN HERBARIUM GRID ===================== */
+.herb-plant-img {
+  width: 88%;
+  height: auto;
+  max-width: 112px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.15));
+}
+
+/* ===================== PLANT IMAGES IN BASKET ===================== */
+.basket-plant-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.18));
+}
+
+/* ===================== WELTEN-PLANETEN-OVERLAY ===================== */
+/* Light beige popup card overlaid on the homescreen.                  */
+/* Opened by clicking the season badge; styled like other app panels.  */
+
+#weltenOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(140, 165, 138, 0.22);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#weltenOverlay.open {
+  display: flex;
+  animation: fadeInUp 0.28s ease;
+}
+
+/* Main card – matches the cream/beige panel style of the rest of the app */
+.welten-popup-card {
+  background: var(--cream);
+  border: 3px solid var(--brown-border);
+  border-radius: 26px;
+  padding: 22px 20px 26px;
+  width: 100%;
+  max-width: 356px;
+  box-shadow: 0 8px 32px rgba(70, 45, 15, 0.22);
+  position: relative;
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: popIn 0.26s ease;
+}
+
+/* Close button – matches .panel-close-btn */
+.welten-close-btn {
+  position: absolute;
+  top: 13px;
+  right: 14px;
+  background: rgba(120, 90, 40, 0.12);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: background 0.15s;
+  z-index: 5;
+}
+.welten-close-btn:hover { background: rgba(120, 90, 40, 0.22); }
+
+/* Panel title */
+.welten-popup-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 18px;
+  padding-right: 28px;
+}
+
+/* Active world – centred column */
+.welten-active-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Orbit ring: 220×220 – rotates extremely slowly */
+.welten-orbit-ring {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  flex-shrink: 0;
+  animation: weltenPlanetSpin 120s linear infinite;
+}
+
+/* 3D globe sphere – 180×180, offset 20px from ring edges */
+.welten-planet {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  box-shadow:
+    inset -30px -24px 60px rgba(0, 0, 0, 0.38),
+    inset 14px 12px 32px rgba(255, 255, 255, 0.13),
+    0 8px 32px rgba(20, 60, 20, 0.22);
+}
+/* Specular highlight – bright spot upper-left */
+.welten-planet::after {
+  content: '';
+  position: absolute;
+  width: 68px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.38) 0%, transparent 75%);
+  top: 18px;
+  left: 22px;
+  pointer-events: none;
+}
+
+/* Sun icon at globe centre – counter-rotates to stay upright */
+.welten-planet-core {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  left: 110px;
+  top: 110px;
+  transform: translate(-50%, -50%);
+  animation: weltenCoreStay 60s linear infinite;
+  filter: drop-shadow(0 0 12px rgba(255, 220, 80, 0.55));
+}
+
+/* Plant PNG – rotates WITH the globe, so some appear upside down */
+.welten-orbit-plant {
+  position: absolute;
+  object-fit: contain;
+  margin-left: -22px;
+  margin-top: -22px;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.30));
+}
+
+@keyframes weltenPlanetSpin {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+@keyframes weltenCoreStay {
+  from { transform: translate(-50%, -50%) rotate(0deg);    }
+  to   { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+
+/* World name below globe */
+.welten-world-name {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-top: 14px;
+  text-align: center;
+}
+
+/* Divider + inactive worlds below active globe */
+.welten-inactive-section {
+  border-top: 1.5px solid rgba(120, 90, 40, 0.14);
+  padding-top: 16px;
+}
+.welten-inactive-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.welten-inactive-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.welten-mini-world {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: transform 0.20s;
+  -webkit-tap-highlight-color: transparent;
+}
+.welten-mini-world:hover { transform: translateY(-3px) scale(1.04); }
+
+/* Small inactive-world orb – no icon yet, coloured 3D circle */
+.welten-mini-planet {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  opacity: 0.60;
+  filter: grayscale(0.25);
+  box-shadow:
+    inset -8px -6px 16px rgba(0, 0, 0, 0.18),
+    inset 4px 4px 10px rgba(255, 255, 255, 0.08),
+    0 3px 10px rgba(0, 0, 0, 0.10);
+}
+.welten-mini-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+/* Season info popup (position: absolute relative to .welten-popup-card) */
+#weltenSeasonInfo {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  background: rgba(60, 40, 20, 0.26);
+  backdrop-filter: blur(3px);
+  border-radius: 26px;
+}
+.welten-season-popup {
+  background: var(--parchment);
+  border: 1.5px solid var(--brown-border);
+  border-radius: 20px;
+  padding: 22px 26px;
+  text-align: center;
+  max-width: 240px;
+  box-shadow: 0 6px 24px rgba(70, 45, 15, 0.22);
+  animation: popIn 0.24s ease;
+}
+.welten-season-popup-name {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 7px;
+}
+.welten-season-popup-text {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.6;
+}
+.welten-season-popup-btn {
+  margin-top: 15px;
+  background: var(--green-dark);
+  border: none;
+  border-radius: 50px;
+  padding: 8px 22px;
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: inline-block;
+}
+.welten-season-popup-btn:hover { transform: scale(1.05); }
+
+/* Season badge clickable hint */
+.top-badge-season {
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.top-badge-season:hover {
+  transform: scale(1.06);
+  box-shadow: 0 4px 18px rgba(40, 60, 40, 0.32);
+}
+</style>
+</head>
+<body>
+<div id="phone-shell">
+
+<!-- ========================= MAP BACKGROUND ========================= -->
+<div class="map-bg">
+  <svg viewBox="0 0 460 820" xmlns="http://www.w3.org/2000/svg"
+       preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%">
+    <rect width="460" height="820" fill="#c0d1ba"/>
+
+    <!-- Green patches / meadows -->
+    <ellipse cx="80" cy="220" rx="82" ry="60" fill="#b4c8ae" opacity="0.7"/>
+    <ellipse cx="390" cy="310" rx="72" ry="52" fill="#b4c8ae" opacity="0.65"/>
+    <ellipse cx="200" cy="580" rx="130" ry="88" fill="#b2c6ac" opacity="0.62"/>
+    <ellipse cx="390" cy="630" rx="68" ry="48" fill="#a8c0a2" opacity="0.6"/>
+    <ellipse cx="50" cy="660" rx="55" ry="40" fill="#b2c6ac" opacity="0.55"/>
+
+    <!-- Streets -->
+    <path d="M0,340 Q90,323 165,332 Q240,342 272,308 Q304,274 380,282 Q430,288 460,276"
+          stroke="#d8cdb0" stroke-width="20" fill="none" stroke-linecap="round"/>
+    <path d="M272,308 Q278,390 274,478 Q270,560 272,680"
+          stroke="#d8cdb0" stroke-width="15" fill="none" stroke-linecap="round"/>
+    <path d="M84,162 Q88,222 96,340"
+          stroke="#d8cdb0" stroke-width="13" fill="none" stroke-linecap="round"/>
+    <path d="M0,520 Q70,510 140,518 Q200,525 272,510"
+          stroke="#d8cdb0" stroke-width="11" fill="none" stroke-linecap="round"/>
+    <path d="M360,400 Q420,388 460,392"
+          stroke="#d8cdb0" stroke-width="10" fill="none" stroke-linecap="round"/>
+
+    <!-- Compass -->
+    <g transform="translate(424,76)">
+      <circle r="22" fill="rgba(255,250,240,0.78)"/>
+      <text x="0" y="-9"  font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">N</text>
+      <text x="0" y="17"  font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">S</text>
+      <text x="-14" y="5" font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">W</text>
+      <text x="14"  y="5" font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">O</text>
+      <polygon points="0,-14 3,1 0,5 -3,1"  fill="#b03020" opacity="0.8"/>
+      <polygon points="0,14  3,-1 0,-5 -3,-1" fill="#808080" opacity="0.55"/>
+    </g>
+
+    <!-- Current location pulse -->
+    <g transform="translate(248,376)">
+      <circle r="18" fill="#2e7d32" opacity="0.1">
+        <animate attributeName="r"       values="14;23;14" dur="2.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.16;0.04;0.16" dur="2.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="9"  fill="#2e7d32" opacity="0.3"/>
+      <circle r="5"  fill="white"/>
+      <circle r="3.5" fill="#2e7d32"/>
+    </g>
+  </svg>
+</div>
+
+<!-- ========================= 3D PLANT PINS LAYER ========================= -->
+<div class="pins-layer" id="pinsLayer"></div>
+
+<!-- ========================= LEFT NAV PILL ========================= -->
+<nav class="left-nav">
+  <button class="nav-icon-btn settings-btn" title="Einstellungen">
+    <img src="assets/icons/Einstellungen.png" alt="Einstellungen" class="nav-icon-img">
+  </button>
+
+  <div class="nav-divider"></div>
+
+  <button class="nav-icon-btn nav-item" id="nav-basket"
+          onclick="togglePanel('basket')" title="Körbchen">
+    <img src="assets/icons/Koerbchen.png" alt="Körbchen" class="nav-icon-img">
+    <span class="nav-badge" id="basketBadge" style="display:none">0</span>
+  </button>
+
+  <button class="nav-icon-btn nav-item" id="nav-herbarium"
+          onclick="togglePanel('herbarium')" title="Herbarium">
+    <img src="assets/icons/Buch.png" alt="Herbarium" class="nav-icon-img">
+  </button>
+
+  <button class="nav-icon-btn nav-item" id="nav-todos"
+          onclick="togglePanel('todos')" title="To-Do Liste">
+    <img src="assets/icons/ToDoListe.png" alt="To-Do Liste" class="nav-icon-img">
+  </button>
+
+</nav>
+
+<!-- ========================= TOP-RIGHT BADGES ========================= -->
+<div class="top-bar">
+  <div class="top-badge">
+    Level <span id="levelNum">3</span>
+    &nbsp;·&nbsp;
+    <span id="herbCount">1</span>/4
+    <img src="assets/icons/Blatt.png" alt="" class="badge-icon-img">
+  </div>
+  <div class="top-badge top-badge-season" onclick="openWeltenOverlay()" title="Welten-Übersicht öffnen">
+    Sommer <img src="assets/icons/sun.png" alt="" class="badge-icon-img">
+  </div>
+</div>
+
+<!-- ========================= SCAN FAB ========================= -->
+<button class="scan-fab" id="scanBtn" onclick="openCameraOverlay()" title="Pflanze fotografieren">
+  <img src="assets/icons/Camera.png" alt="Kamera" class="fab-icon-img">
+</button>
+
+<!-- Scan feedback toast -->
+<div id="scanFeedback"></div>
+
+<!-- Trophäen-Freischalt-Benachrichtigung -->
+<div id="trophyUnlockToast">
+  <div class="trophy-toast-label">NEUE TROPHÄE</div>
+  <img id="trophyUnlockImg" src="" alt="">
+  <div class="trophy-toast-name" id="trophyUnlockName"></div>
+  <div class="trophy-toast-desc" id="trophyUnlockDesc"></div>
+</div>
+
+<!-- ========================= FLORIN – PEDAGOGICAL AGENT ========================= -->
+<!-- Florin is the interactive gardener character. Clicking him opens the chatbot.  -->
+<!-- Equipment items are injected into #florinEquipLayer by renderFlorinEquipment() -->
+<div id="nav-chatbot" class="florin-wrap" onclick="togglePanel('chatbot')" title="Mit Florin chatten">
+  <div class="florin-bubble">Psst&nbsp;… frag mich was! 🌿</div>
+  <div class="florin-figure">
+    <img src="assets/Gardener.png" alt="Florin" class="florin-img">
+    <div id="florinEquipLayer"></div>
+  </div>
+  <div class="florin-shadow"></div>
+</div>
+
+<!-- ========================= PANEL: BASKET ========================= -->
+<div class="panel-overlay" id="panel-basket" onclick="onOverlayClick(event,'basket')">
+  <div class="panel-card">
+    <button class="panel-close-btn" onclick="closePanel('basket')">✕</button>
+    <div class="panel-title"><img src="assets/icons/Koerbchen.png" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> Das Körbchen</div>
+    <div id="basketContent"></div>
+  </div>
+</div>
+
+<!-- ========================= PANEL: HERBARIUM ========================= -->
+<div class="panel-overlay" id="panel-herbarium" onclick="onOverlayClick(event,'herbarium')">
+  <div class="panel-card">
+    <button class="panel-close-btn" onclick="closePanel('herbarium')">✕</button>
+    <div class="panel-title"><img src="assets/icons/Buch.png" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> Das Herbarium</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchHerbTab('welten',this)">Welten</button>
+      <button class="tab-btn" onclick="switchHerbTab('familien',this)">Familien</button>
+      <button class="tab-btn" onclick="switchHerbTab('trophies',this)">Trophäen</button>
+    </div>
+    <div id="herb-tab-welten"><!-- filled by renderHerbarium() --></div>
+    <div id="herb-tab-familien" style="display:none"></div>
+    <!-- Trophy tab: rendered dynamically by renderTrophyTab() -->
+    <div id="herb-tab-trophies" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ========================= PANEL: TO-DOS ========================= -->
+<div class="panel-overlay" id="panel-todos" onclick="onOverlayClick(event,'todos')">
+  <div class="panel-card">
+    <button class="panel-close-btn" onclick="closePanel('todos')">✕</button>
+    <div class="panel-title"><img src="assets/icons/ToDoListe.png" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> To-Dos</div>
+    <div id="todoContent"></div>
+  </div>
+</div>
+
+<!-- ========================= PANEL: LERN-SESSION ========================= -->
+<div class="panel-overlay" id="panel-lernsession" onclick="onOverlayClick(event,'lernsession')">
+  <div class="panel-card">
+    <button class="panel-close-btn" onclick="closePanel('lernsession')">✕</button>
+    <div class="panel-title"><img src="assets/icons/Mikroskop.png" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> Lektion</div>
+    <div id="lernsessionContent"></div>
+  </div>
+</div>
+
+<!-- ========================= PANEL: CHATBOT ========================= -->
+<div class="panel-overlay" id="panel-chatbot" onclick="onOverlayClick(event,'chatbot')">
+  <div class="panel-card">
+    <button class="panel-close-btn" onclick="closePanel('chatbot')">✕</button>
+    <div class="panel-title">🌿 Florin</div>
+
+    <!-- Fortbildungsaufträge: nur sichtbar wenn aktive Aufgaben vorhanden – wird per JS befüllt -->
+    <div id="florinTaskSection" style="display:none"></div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-bubble bot">
+        Hallo! Ich bin Florin 🌿<br>
+        Frag mich alles über Pflanzen, Bestimmungsmerkmale oder die Botanik!
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" type="text"
+             placeholder="z.B. Was ist eine Pflanzenfamilie?"
+             onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= PANEL: QUIZ ========================= -->
+<div class="panel-overlay" id="panel-quiz">
+  <div class="panel-card">
+    <button class="panel-close-btn" onclick="closePanel('quiz')">✕</button>
+    <div class="panel-title"><img src="assets/icons/Mikroskop.png" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> Bestimmungsschlüssel</div>
+    <div id="quizContent"></div>
+  </div>
+</div>
+
+<!-- ========================= MAP PIN MINI-CARD ========================= -->
+<div id="mapPinCard" onclick="if(event.target===this)closeMapPinCard()">
+  <div class="map-pin-card-sheet">
+    <div style="width:38px;height:4px;background:rgba(120,100,80,0.25);border-radius:2px;margin:0 auto 16px"></div>
+    <div id="mapPinCardContent"></div>
+  </div>
+</div>
+
+<!-- ========================= CAMERA VIEWFINDER ========================= -->
+<div id="cameraOverlay">
+  <!-- Top bar -->
+  <div class="cam-topbar">
+    <button class="cam-close-btn" onclick="closeCameraOverlay()">✕ Abbrechen</button>
+    <span class="cam-title">Pflanze fotografieren</span>
+    <div style="width:90px"></div>
+  </div>
+
+  <!-- Viewfinder -->
+  <div class="cam-viewfinder" id="camViewfinder">
+    <!-- Corner brackets -->
+    <div class="cam-bracket tl"></div>
+    <div class="cam-bracket tr"></div>
+    <div class="cam-bracket bl"></div>
+    <div class="cam-bracket br"></div>
+
+    <!-- Step progress dots -->
+    <div class="cam-step-dots" id="camStepDots">
+      <span class="cam-dot"></span>
+      <span class="cam-dot"></span>
+      <span class="cam-dot"></span>
+    </div>
+
+    <!-- Focus ring -->
+    <div class="cam-focus-ring" id="camFocusRing"></div>
+
+    <!-- Scan line (appears on shutter) -->
+    <div class="cam-scan-line" id="camScanLine"></div>
+
+    <!-- Status text -->
+    <div class="cam-status" id="camStatus">Bild gespeichert…</div>
+
+    <!-- Flash overlay -->
+    <div class="cam-flash" id="camFlash"></div>
+
+    <!-- Hint text -->
+    <div class="cam-hint" id="camHint">Mache ein Bild von der Blüte</div>
+  </div>
+
+  <!-- Shutter bar -->
+  <div class="cam-bottombar">
+    <button class="shutter-btn" id="shutterBtn" onclick="triggerScan()">
+      <img src="assets/icons/Camera.png" alt="Fotografieren" class="shutter-icon">
+    </button>
+  </div>
+</div>
+
+<!-- ========================= WELTEN-PLANETEN-OVERLAY ========================= -->
+<!-- z-index 120: light backdrop; .welten-popup-card is the visible beige card  -->
+<div id="weltenOverlay">
+  <div class="welten-popup-card">
+    <button class="welten-close-btn" onclick="closeWeltenOverlay()">✕</button>
+    <!-- Dynamic content rendered by renderWeltenOverlay() on each open -->
+    <div id="weltenOverlayContent"></div>
+    <!-- Season info: position:absolute inside popup card, shows on inactive-world tap -->
+    <div id="weltenSeasonInfo"></div>
+  </div>
+</div>
+
+<!-- ========================= PLANT POPUP ========================= -->
+<div class="popup-overlay" id="plantPopup" style="display:none"
+     onclick="if(event.target===this)closePopupDirect()">
+  <div class="popup-sheet">
+    <div class="popup-drag"></div>
+    <div id="popupContent"></div>
+    <div style="margin-top:18px;text-align:center">
+      <button class="btn-secondary" onclick="closePopupDirect()">Schließen ✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== PLANT DATA ====================
+const plants = {
+  gefleckte_taubnessel: {
+    emoji:'🌸', plantImg:'assets/Plants/Sommerblueher/Gefleckte_Taubnessel.png',
+    name:'Gefleckte Taubnessel', latin:'Lamium maculatum',
+    family:'Lippenblütengewächse (Lamiaceae)', world:'sommerblüher',
+    bg:'#fce4ec', border:'#ce93d8', text:'#6a1b9a', inHerbarium:false,
+    habitat:'Hecken, Wegränder, schattige Gärten, Waldränder',
+    pollinators:'🐝 Bienen, 🐝 Hummeln', stars:3, bloomTime:'April – Oktober',
+    lore:'Die weißen Flecken auf den Blättern täuschen einen Pilzbefall vor – ein cleverer Trick, um Weidetiere fernzuhalten. Obwohl sie der Brennnessel täuschend ähnelt, hat sie keine Brennhaare: „taub" bedeutet einfach nicht brennend. Die röhrenförmigen rosa Blüten sind auf langrüsselige Hummeln zugeschnitten – nur sie kommen ans verborgene Nektarium!',
+    xp:40
+  },
+  goldnessel: {
+    emoji:'🌼', plantImg:'assets/Plants/Sommerblueher/Goldnessel.png',
+    name:'Goldnessel', latin:'Lamium galeobdolon',
+    family:'Lippenblütengewächse (Lamiaceae)', world:'sommerblüher',
+    bg:'#fffde7', border:'#ffd54f', text:'#e65100', inHerbarium:false,
+    habitat:'Laubwälder, Waldränder, Hecken, schattige Plätze',
+    pollinators:'🐝 Hummeln, 🐝 Bienen', stars:3, bloomTime:'April – Juni',
+    lore:'Die Goldnessel ist ein echter Waldgeist: Ihre leuchtend gelben Blüten leuchten im Frühlingswald auf, bevor das Kronendach sich schließt und alles verdunkelt. Sie breitet sich kriechend aus und kann ganze Waldbodenflächen überziehen. Silbrig gefleckte Gartenformen sind weit verbreitet – die echte Wildform hat rein grüne Blätter.',
+    xp:40
+  },
+  weisse_taubnessel: {
+    emoji:'🤍', plantImg:'assets/Plants/Sommerblueher/Weisse_Taubnessel.png',
+    name:'Weiße Taubnessel', latin:'Lamium album',
+    family:'Lippenblütengewächse (Lamiaceae)', world:'sommerblüher',
+    bg:'#f5f5f5', border:'#bdbdbd', text:'#424242', inHerbarium:false,
+    habitat:'Wegränder, Schuttplätze, Gebüsche, Gärten, Ruderalstellen',
+    pollinators:'🐝 Bienen, 🐝 Hummeln, 🦋 Schmetterlinge', stars:2, bloomTime:'März – November',
+    lore:'Die Weiße Taubnessel blüht fast das ganze Jahr und ist damit eine der wichtigsten Nektarquellen für frühe Insekten. Im Mittelalter nannte man ihre Blüten „Honigtöpfchen" – Kinder saugten den süßen Nektar direkt heraus. Obwohl sie der Brennnessel täuschend ähnelt, brennt sie kein bisschen. „Taub" heißt hier einfach: harmlos!',
+    xp:35
+  },
+  gaenseblumchen: {
+    emoji:'🌸', plantImg:'assets/Plants/Fruehblueher/Gaensebluemchen.png',
+    name:'Gänseblümchen', latin:'Bellis perennis',
+    family:'Korbblütengewächse (Asteraceae)', world:'frühblüher',
+    bg:'#fce4ec', border:'#f48fb1', text:'#e91e63', inHerbarium:false,
+    habitat:'Rasenflächen, Wiesen, Parkanlagen',
+    pollinators:'🦋 Schmetterlinge, 🐝 Bienen', stars:2, bloomTime:'März – November',
+    lore:'"Bellis" bedeutet auf Lateinisch "schön". Das Gänseblümchen schließt seine Blüte bei Regen und Dunkelheit, um den Pollen zu schützen. In der Volksmedizin wurden gequetschte Blätter auf Wunden gelegt. Durch das Liebes-Orakel "Er liebt mich, liebt mich nicht..." wurde es zum Symbol der Weissagung.',
+    xp:35
+  },
+  rotklee: {
+    emoji:'🍀', plantImg:'assets/Plants/Sommerblueher/Rotklee.png',
+    name:'Wiesen-Rotklee', latin:'Trifolium pratense',
+    family:'Hülsenfrüchtler (Fabaceae)', world:'sommerblüher',
+    bg:'#fce4ec', border:'#e57373', text:'#c62828', inHerbarium:true,
+    habitat:'Wiesen, Weiden, Wegränder, Böschungen',
+    pollinators:'🐝 Hummeln, 🦋 Schmetterlinge', stars:4, bloomTime:'Mai – Oktober',
+    lore:'Nur der lange Rüssel der Hummel reicht an den Nektar – er ist der wichtigste Bestäuber. Als Leguminose fixiert Rotklee Luftstickstoff: Bakterien an seinen Wurzeln düngen den Boden ganz ohne Kunstdünger. Bei den Kelten galt das vierblättrige Kleeblatt als Zeichen der Götter.',
+    xp:50
+  },
+  kirschbaum: {
+    emoji:'🌸', plantImg:'assets/Plants/Fruehblueher/Kirschbaum.png',
+    name:'Vogelkirsche', latin:'Prunus avium',
+    family:'Rosengewächse (Rosaceae)', world:'frühblüher',
+    bg:'#fce4ec', border:'#f48fb1', text:'#c2185b', inHerbarium:false,
+    habitat:'Laubwälder, Waldränder, Parks, Streuobstwiesen',
+    pollinators:'🐝 Bienen, 🦋 Schmetterlinge, 🪲 Käfer', stars:4, bloomTime:'März – Mai',
+    lore:'Die Vogelkirsche blüht noch bevor die Blätter austreiben – ein Frühlingsbote, der kaum zu übersehen ist. Ihr Name kommt von den Vögeln, die ihre kleinen schwarzroten Früchte lieben und so die Samen weitertragen. Sie ist die Stammform aller Süßkirschen im Obstgarten. Ein einziger Baum kann im Frühling über 100.000 Blüten öffnen!',
+    xp:55
+  },
+  lupine: {
+    emoji:'🌸', plantImg:'assets/Plants/Sommerblueher/Lupine.png',
+    name:'Vielblättrige Lupine', latin:'Lupinus polyphyllus',
+    family:'Hülsenfrüchtler (Fabaceae)', world:'sommerblüher',
+    bg:'#ede7f6', border:'#9575cd', text:'#4527a0', inHerbarium:false,
+    habitat:'Wegränder, Wiesen, Ruderalflächen, Gärten',
+    pollinators:'🐝 Hummeln, 🦋 Schmetterlinge', stars:4, bloomTime:'Mai – Juli',
+    lore:'Der Name „Lupine" kommt vom lateinischen lupus – Wolf. Man glaubte früher, sie raubt dem Boden die Nährstoffe. Das genaue Gegenteil ist wahr: Wie der Rotklee beherbergt sie Knöllchenbakterien an den Wurzeln, die Luftstickstoff binden und den Boden damit düngen. Ursprünglich aus Nordamerika, ist sie heute aus unseren Wiesen nicht mehr wegzudenken!',
+    xp:50
+  },
+  hahnenfuss: {
+    emoji:'🌼', plantImg:'assets/Plants/Sommerblueher/Kriechender_Hahnenfuss.png',
+    name:'Kriechender Hahnenfuß', latin:'Ranunculus repens',
+    family:'Hahnenfußgewächse (Ranunculaceae)', world:'sommerblüher',
+    bg:'#fffde7', border:'#ffd54f', text:'#e65100', inHerbarium:false,
+    habitat:'Feuchte Wiesen, Wegränder, Ufer, Gärten',
+    pollinators:'🐝 Bienen, 🪲 Käfer, 🦋 Schmetterlinge', stars:2, bloomTime:'Mai – August',
+    lore:'Die glänzenden gelben Kronblätter des Hahnenfußes wirken wie kleine Spiegel – ein winziger Wachsfilm reflektiert das Licht und lockt Insekten an. Der Trick mit dem Butterblumetest: Hält man die Blüte unters Kinn, leuchtet die Haut gelb. Obwohl er giftig ist, kriecht er hartnäckig über feuchte Wiesen und kann ganze Flächen überwuchern.',
+    xp:35
+  },
+  linde: {
+    emoji:'🌳', plantImg:'assets/Plants/Sommerblueher/Linde.png',
+    name:'Sommerlinde', latin:'Tilia platyphyllos',
+    family:'Malvengewächse (Malvaceae)', world:'sommerblüher',
+    bg:'#f1f8e9', border:'#aed581', text:'#33691e', inHerbarium:false,
+    habitat:'Laubwälder, Parks, Alleen, Dorfplätze',
+    pollinators:'🐝 Bienen, 🐝 Hummeln, 🦋 Schmetterlinge', stars:3, bloomTime:'Juni – Juli',
+    lore:'Die Linde war in germanischer Mythologie der Baum der Göttin Freya – unter ihr wurde Recht gesprochen und getanzt. Ihr Duft zur Blütezeit ist so intensiv, dass ganze Straßenzüge darin versinken. Lindenblütentee ist ein bewährtes Hausmittel gegen Erkältungen. Ein einziger Baum kann Jahrzehnte, manchmal Jahrhunderte alt werden.',
+    xp:45
+  }
+};
+
+// ==================== ENTSCHEIDUNGSBAUM (Bestimmungsschlüssel) ====================
+// Zweistufiger botanischer Bestimmungsschlüssel. Jeder Knoten hat `options[]`.
+// Optionen mit `next` führen auf den nächsten Knoten; Optionen mit `family`
+// sind Endknoten — wird die wissenschaftliche Familienbezeichnung der aktuellen
+// Pflanze darin gefunden, ist die Bestimmung korrekt.
+const quizTree = {
+
+  // ── STUFE 1: Blütenform ──────────────────────────────────────────────────
+  L1: {
+    question: '„Lass uns die Blüte genauer unter die Lupe nehmen."',
+    hint: 'Kronblätter (Petalen) sind die farbigen Blütenblätter. Zähle sie sorgfältig und schaue auf ihre Anordnung – frei einzeln, genau 4 kreuzförmig, oder eine ganz andere Struktur?',
+    florinTip: 'Ich zähle immer zuerst die Kronblätter! 5 oder mehr freie, oft glänzende Blütenblätter? → Pfad A. Genau 4 kreuzförmig angeordnet? → Das sind Kreuzblütler! Alles andere – verwachsen, röhrenförmig, Körbchen, Schmetterling? → Pfad C.',
+    options: [
+      {
+        id: 'A',
+        label: 'Mindestens 5 Kronblätter',
+        desc: '5 oder mehr freie Kronblätter; oft mit vielen Staubblättern in der Mitte.',
+        img: 'assets/quiz/l1_fuenf.png',
+        next: 'L2A'
+      },
+      {
+        id: 'B',
+        label: '4 Kreuz-Kronblätter',
+        desc: 'Genau 4 Kronblätter, kreuzförmig in zwei Paaren angeordnet (Kreuzblütler).',
+        img: 'assets/quiz/l1_kreuz.png',
+        family: 'Brassicaceae'
+      },
+      {
+        id: 'C',
+        label: 'Andere Blütenform',
+        desc: 'Verwachsen, röhrenförmig, Körbchen aus vielen kleinen Einzelblüten, oder Schmetterlingsform.',
+        img: 'assets/quiz/l1_andere.png',
+        next: 'L2B'
+      }
+    ]
+  },
+
+  // ── STUFE 2A: 5+ freie Kronblätter ──────────────────────────────────────
+  L2A: {
+    question: '„Die Blüte hat 5+ freie Kronblätter. Welche Beschreibung passt besser zu deiner Pflanze?"',
+    hint: 'Schaue jetzt auf die Blätter: Sind sie stark gelappt und glänzend (Hahnenfuß)? Oder gefiedert und gezähnt mit Nebenblättern (Rosengewächse)?',
+    florinTip: 'Beim Hahnenfuß glänzen die Kronblätter wie Wachs – ein winziger Spiegel unter der Blüte macht das! Rosengewächse erkennst du oft an gezähnten, gefiederten Blättern. Und weißt du was? Äpfel, Erdbeeren und Rosen sind alle in dieser Familie – riesige Familie!',
+    options: [
+      {
+        id: 'A1',
+        label: 'Hahnenfußgewächse',
+        desc: 'Wachsartig glänzende Kronblätter, viele Staubblätter, oft stark gelappte Blätter.',
+        img: 'assets/quiz/l2a_ranunculaceae.png',
+        family: 'Ranunculaceae'
+      },
+      {
+        id: 'A2',
+        label: 'Rosengewächse',
+        desc: 'Gefiederte oder gezähnte Blätter, häufig mit Nebenblättern; Blüten in Doldentrauben.',
+        img: 'assets/quiz/Rosengewaechse.png',
+        family: 'Rosaceae'
+      },
+    ]
+  },
+
+  // ── STUFE 2B: Andere / komplexe Blütenform ───────────────────────────────
+  L2B: {
+    question: '„Die Blüte hat eine besondere Form. Welche dieser Beschreibungen trifft am besten zu?"',
+    hint: 'Schaue auf die Gesamtstruktur: Viele Blüten in einem Schirmchen (Dolde)? Ein flaches Körbchen? Schmetterlings-Bauweise? Zweilippen-Röhre? Oder raue, borstige Blätter mit trichterförmiger Blüte?',
+    florinTip: 'So merke ich mir die Familien: Doldenblütler – wie ein Sonnenschirmchen! Korbblütler – viele Blütchen auf einem Tablett. Schmetterlingsblütler – Fahne, Flügel, Schiffchen! Lippenblütler – zwei Lippen, vierkantig-rauer Stängel. Raublattgewächse – borstig-raue Blätter wie Schmirgelpapier!',
+    options: [
+      {
+        id: 'B1',
+        label: 'Doldenblütler',
+        desc: 'Viele kleine Blüten in einem flachen Schirmchen (Dolde); oft fein gefiederte Blätter.',
+        img: 'assets/quiz/l2b_apiaceae.png',
+        family: 'Apiaceae'
+      },
+      {
+        id: 'B2',
+        label: 'Korbblütler',
+        desc: 'Viele Einzelblüten in einem Köpfchen; Zungenblüten am Rand, Röhrenblüten in der Mitte.',
+        img: 'assets/quiz/Korbbluetler.png',
+        family: 'Asteraceae'
+      },
+      {
+        id: 'B3',
+        label: 'Schmetterlingsblütler',
+        desc: 'Fahne, 2 Flügel und Schiffchen; oft 3-zählige Blätter; Früchte als Hülsen.',
+        img: 'assets/quiz/l2b_fabaceae.png',
+        family: 'Fabaceae'
+      },
+      {
+        id: 'B4',
+        label: 'Lippenblütler',
+        desc: '2-lippige Röhrenblüte; Stängel vierkantig; Blätter aromatisch und gegenständig.',
+        img: 'assets/quiz/Lippenbluetler.png',
+        family: 'Lamiaceae'
+      },
+      {
+        id: 'SPECIAL',
+        label: 'Etwas ganz anderes',
+        desc: 'Nichts davon passt – Florin löst es für dich auf!',
+        img: null,
+        special: true
+      }
+    ]
+  }
+};
+
+// Plants in the active Sommerblüher world (used for welten globe orbit)
+const allSpringPlants = ['rotklee','lupine','gefleckte_taubnessel','goldnessel','weisse_taubnessel','hahnenfuss','linde','gaenseblumchen'];
+
+// All 4 world groups — plant IDs that don't yet exist in plants{} show as locked placeholders
+const worldGroups = [
+  {
+    id: 'frühblüher', name: 'Frühblüher',
+    colorLabel: '#2e7d32', iconImg: 'assets/icons/Fruehblueher.png',
+    plantIds: ['baerlauch','kirschbaum','apfelbaum','schlusselblume','gaenseblumchen']
+  },
+  {
+    id: 'sommerblüher', name: 'Sommerblüher',
+    colorLabel: '#d07000', iconImg: 'assets/icons/sun.png',
+    plantIds: ['rotklee','lupine','gefleckte_taubnessel','goldnessel','weisse_taubnessel','hahnenfuss','linde','gaenseblumchen']
+  },
+  {
+    id: 'herbstblüher', name: 'Herbstblüher',
+    colorLabel: '#bf360c', iconImg: 'assets/icons/Herbstblueher.png',
+    plantIds: ['herbstzeitlose','efeu']
+  },
+  {
+    id: 'winterblüher', name: 'Winterblüher',
+    colorLabel: '#1565c0', iconImg: 'assets/icons/Winterblueher.png',
+    plantIds: ['schneeglockchen','vogelmiere','greiskraut']
+  }
+];
+
+const scanPool = ['gaenseblumchen','lupine','gefleckte_taubnessel','goldnessel','weisse_taubnessel','hahnenfuss','linde'];
+let scanIndex    = 0;
+let scanStep     = 1;          // 1 → Blüte, 2 → Blätter, 3 → Gesamtpflanze
+let pendingScanId = null;      // plant ID locked in at step 1
+let basket = [];
+let herbarium = [];
+let currentPlantForQuiz = null;
+let quizState       = { node: 'L1', path: [] }; // Entscheidungsbaum-Zustand
+let quizPhotoIndex  = 0;                         // 0–2: welches der 3 Scan-Fotos
+let quizPhotoZoomed = false;                     // Zoom-Zustand Foto-Kachel
+let _quizTouchStartX = 0;                        // Touch-Swipe Hilfsvar
+let _quizLastTap     = 0;                        // Double-Tap Timestamp
+let galleryIndex = 0;
+let totalXP = 280;
+let activePanel = null;
+
+// ==================== PIN DATA (SVG coords 460×820) ====================
+// plantImg is derived from plants[id].plantImg – all assets are now real PNGs.
+const pinData = [
+  { id: 'gefleckte_taubnessel', svgX: 148, svgY: 298, label: 'Gefl. Taubnessel' },
+  { id: 'goldnessel',           svgX: 180, svgY: 470, label: 'Goldnessel'       },
+  { id: 'weisse_taubnessel',    svgX: 350, svgY: 500, label: 'Weiße Taubnessel' },
+  { id: 'gaenseblumchen',   svgX: 210, svgY: 440, label: 'Gänseblümchen'   },
+  { id: 'rotklee',          svgX: 400, svgY: 455, label: 'Rotklee'          },
+  { id: 'lupine',           svgX: 230, svgY: 560, label: 'Lupine'           },
+  { id: 'kirschbaum',       svgX: 350, svgY: 245, label: 'Vogelkirsche',  large: true },
+  { id: 'hahnenfuss',       svgX: 120, svgY: 530, label: 'Hahnenfuß'                 },
+  { id: 'linde',            svgX: 310, svgY: 350, label: 'Sommerlinde',  large: true },
+];
+
+// ==================== PNG PLANT PINS ====================
+function renderPins() {
+  const layer = document.getElementById('pinsLayer');
+  if (!layer) return;
+
+  // Only plants already identified (in herbarium) appear on the map
+  const visiblePins = pinData.filter(pin => herbarium.includes(pin.id));
+
+  layer.innerHTML = visiblePins.map(pin => `
+    <div class="plant-pin-wrap" data-svgx="${pin.svgX}" data-svgy="${pin.svgY}"
+         onclick="showMapPinCard('${pin.id}')">
+      <img src="${plants[pin.id].plantImg}" alt="${pin.label}" class="pin-plant-img${pin.large ? ' pin-plant-img--lg' : ''}">
+    </div>
+  `).join('');
+
+  updatePinPositions();
+}
+
+function updatePinPositions() {
+  const shell = document.getElementById('phone-shell');
+  const vw = shell.offsetWidth;
+  const vh = shell.offsetHeight;
+  const SVG_W = 460, SVG_H = 820;
+  const scale   = Math.max(vw / SVG_W, vh / SVG_H);
+  const offsetX = (vw - SVG_W * scale) / 2;
+  const offsetY = (vh - SVG_H * scale) / 2;
+
+  document.querySelectorAll('.plant-pin-wrap').forEach(pin => {
+    pin.style.left = (offsetX + parseFloat(pin.dataset.svgx) * scale) + 'px';
+    pin.style.top  = (offsetY + parseFloat(pin.dataset.svgy) * scale) + 'px';
+  });
+}
+
+window.addEventListener('resize', updatePinPositions);
+
+// ==================== INIT ====================
+function init() {
+  Object.entries(plants).forEach(([id, p]) => {
+    if (p.inHerbarium) herbarium.push(id);
+  });
+  updateBadge();
+  updateTopBar();
+  renderHerbarium();
+  renderTodos();
+  renderBasket();
+  renderPins();
+  loadEquipment();
+  renderFlorinEquipment();
+  initFlorinWander();
+  updateFlorinBubble();
+  // Bereits freigeschaltete Trophäen vormerken – keine Benachrichtigung beim Start
+  equipmentItems.forEach(item => { if (item.isUnlocked()) item._wasUnlocked = true; });
+  initPollinators();
+}
+
+// ==================== PANELS ====================
+function togglePanel(name) {
+  if (activePanel === name) { closePanel(name); return; }
+  if (activePanel) _deactivatePanel(activePanel);
+  _activatePanel(name);
+}
+
+function closePanel(name) {
+  _deactivatePanel(name);
+  activePanel = null;
+  florinResumeWander();
+}
+
+function _activatePanel(name) {
+  activePanel = name;
+  document.getElementById('panel-' + name)?.classList.add('active');
+  document.getElementById('nav-'   + name)?.classList.add('active');
+  if (name === 'basket')    renderBasket();
+  if (name === 'herbarium') renderHerbarium();
+  if (name === 'todos')     renderTodos();
+  if (name === 'chatbot')   renderFlorinTasks();
+  // Move Florin to safe corner when any panel is open
+  // (chatbot: he's the focus, no movement needed)
+  if (name !== 'chatbot')   florinHide();
+}
+
+function _deactivatePanel(name) {
+  document.getElementById('panel-' + name)?.classList.remove('active');
+  document.getElementById('nav-'   + name)?.classList.remove('active');
+}
+
+function onOverlayClick(event, name) {
+  if (event.target === document.getElementById('panel-' + name)) closePanel(name);
+}
+
+// ==================== FLORIN WANDERING SYSTEM ====================
+// Florin glides freely around the homescreen. He steps aside or fades out
+// when plant cards/popups are open, and returns to the corner when a panel opens.
+
+let florinWanderInterval = null;
+const FLORIN_TRANSITION_SLOW = 'left 8.0s cubic-bezier(0.45,0.05,0.55,0.95), bottom 7.0s cubic-bezier(0.45,0.05,0.55,0.95), opacity 0.35s ease';
+const FLORIN_TRANSITION_FAST = 'left 1.2s cubic-bezier(0.45,0.05,0.55,0.95), bottom 1.0s cubic-bezier(0.45,0.05,0.55,0.95), opacity 0.35s ease';
+
+function initFlorinWander() {
+  const florin = document.getElementById('nav-chatbot');
+  const vw = document.getElementById('phone-shell').offsetWidth;
+  // Place at starting position without animating
+  florin.style.transition = 'none';
+  florin.style.right      = 'auto';
+  florin.style.left       = (vw - 160) + 'px';
+  florin.style.bottom     = '105px';
+  // Enable smooth gliding after the browser has committed the initial position
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    florin.style.transition = FLORIN_TRANSITION_SLOW;
+    setTimeout(() => {
+      florinPickNewSpot();
+      // Randomise interval slightly so motion feels organic
+      florinWanderInterval = setInterval(florinPickNewSpot, 12000 + Math.random() * 4000);
+    }, 1200);
+  }));
+}
+
+function florinPickNewSpot() {
+  const florin = document.getElementById('nav-chatbot');
+  if (florin.classList.contains('active'))  return; // chatbot open
+  if (activePanel !== null)                 return; // any panel open
+  if (florin.dataset.cardOpen === 'true')   return; // mini-card or popup open
+
+  const shell = document.getElementById('phone-shell');
+  const vw = shell.offsetWidth;
+  const vh = shell.offsetHeight;
+
+  const FLORIN_W  = 148;          // approx wrapper width
+  const NAV_EDGE  = 85;           // right edge of left nav pill
+  const FAB_CX    = vw / 2;       // scan FAB centre x
+  const FAB_HALF  = 52;           // half of FAB exclusion zone
+
+  const minX = NAV_EDGE;
+  const maxX = Math.max(minX + 60, vw - FLORIN_W);
+
+  // Pick x, nudge away from FAB centre if needed
+  let x = minX + Math.random() * (maxX - minX);
+  if (x + FLORIN_W / 2 > FAB_CX - FAB_HALF && x < FAB_CX + FAB_HALF) {
+    x = x < FAB_CX ? FAB_CX - FAB_HALF - FLORIN_W : FAB_CX + FAB_HALF + 10;
+    x = Math.max(minX, Math.min(maxX, x));
+  }
+
+  const minY = 95;
+  const maxY = Math.min(vh * 0.52, vh - 200);
+  const y    = minY + Math.random() * Math.max(0, maxY - minY);
+
+  florin.style.left   = x + 'px';
+  florin.style.bottom = y + 'px';
+
+  // Increment wander cycle counter and refresh bubble visibility
+  _florinBubbleCycleCount++;
+  updateFlorinBubble();
+}
+
+function florinPauseWander() {
+  // Non-chatbot panel opened: move Florin to safe bottom-right corner quickly
+  const florin = document.getElementById('nav-chatbot');
+  if (florin.classList.contains('active')) return; // chatbot: stay in place
+  const vw = document.getElementById('phone-shell').offsetWidth;
+  florin.style.transition    = FLORIN_TRANSITION_FAST;
+  florin.style.left          = (vw - 160) + 'px';
+  florin.style.bottom        = '105px';
+  florin.style.pointerEvents = 'none'; // Panel offen → Florin nicht anklickbar
+  setTimeout(() => { florin.style.transition = FLORIN_TRANSITION_SLOW; }, 1000);
+}
+
+function florinResumeWander() {
+  // Panel closed: fade Florin back in and pick a new wandering spot
+  florinShow();
+  setTimeout(florinPickNewSpot, 700);
+}
+
+function florinHide() {
+  // Plant card / popup opened: fade Florin out so he doesn't cover content
+  const florin = document.getElementById('nav-chatbot');
+  florin.style.opacity       = '0';
+  florin.style.pointerEvents = 'none';
+  florin.dataset.cardOpen    = 'true';
+}
+
+function florinShow() {
+  // Plant card / popup closed: fade Florin back in
+  const florin = document.getElementById('nav-chatbot');
+  florin.style.opacity       = '1';
+  florin.style.pointerEvents = '';
+  florin.dataset.cardOpen    = 'false';
+}
+
+// ==================== FORTBILDUNGSAUFTRÄGE (FLORIN TASKS) ====================
+// Data for Florin's active learning tasks.
+// Fortbildungsaufträge – strikte Level-Reihenfolge.
+// Immer nur EINE Lektion gleichzeitig aktiv; die nächste schaltet sich nach
+// Abschluss der vorherigen frei. completed wird zur Laufzeit gesetzt.
+const fortbildungLessons = [
+  {
+    id:        'bluetenaufbau',
+    level:     1,
+    title:     'Blütenformen & Blütenaufbau',
+    desc:      'Lerne die Teile einer Blüte kennen – Kronblätter, Kelchblätter, Staubblätter – und ordne sie per Drag & Drop an die richtige Stelle.',
+    xp:        15,
+    type:      'puzzle',   // interaktives Drag-&-Drop-Puzzle (Assets ausstehend)
+    completed: false,
+  },
+  {
+    id:        'bluetenstaende',
+    level:     2,
+    title:     'Blütenstände',
+    desc:      'Wie ordnen sich Blüten entlang eines Stängels an? Lerne Traube, Dolde, Ähre und Co. zu unterscheiden.',
+    xp:        15,
+    type:      'lesson',
+    completed: false,
+  },
+  {
+    id:        'blattstellungen',
+    level:     3,
+    title:     'Blattstellungen',
+    desc:      'Gegenständig, wechselständig, quirlständig – die Stellung der Blätter verrät dir oft schon die Pflanzenfamilie.',
+    xp:        15,
+    type:      'lesson',
+    completed: false,
+  },
+  {
+    id:        'blattformen',
+    level:     4,
+    title:     'Blattformen',
+    desc:      'Von lanzettlich bis herzförmig: Lerne die Formensprache der Blätter zu lesen.',
+    xp:        15,
+    type:      'lesson',
+    completed: false,
+  },
+];
+
+/** Gibt die erste noch nicht abgeschlossene Lektion zurück, oder null. */
+function getActiveFortbildung() {
+  return fortbildungLessons.find(l => !l.completed) || null;
+}
+
+function renderFlorinTasks() {
+  const section = document.getElementById('florinTaskSection');
+  if (!section) return;
+  const active = getActiveFortbildung();
+  if (!active) {
+    section.style.display = 'none';
+    return;
+  }
+  section.innerHTML = `
+    <div class="section-label" style="margin-bottom:9px;display:flex;align-items:center;gap:5px">
+      <img src="assets/icons/Mikroskop.png" alt="" style="width:18px;height:18px;object-fit:contain;opacity:0.7">
+      Aktuelle Lektion
+    </div>
+    <div class="fortbild-card fortbild-card--active" onclick="openLernSession('${active.id}')">
+      <div class="fortbild-level-badge">Level ${active.level}</div>
+      <div class="fortbild-title">${active.title}
+        <span style="color:#3a7d3a;font-weight:700;font-size:11px;margin-left:4px">+${active.xp} XP</span>
+      </div>
+      <div class="fortbild-text">${active.desc}</div>
+      <div class="fortbild-start-btn">Lektion starten →</div>
+    </div>
+    <div style="height:4px"></div>
+  `;
+  section.style.display = 'block';
+}
+
+// Zähler für Wander-Zyklen – steuert die gelegentliche Bubble ohne aktiven Auftrag.
+let _florinBubbleCycleCount = 0;
+
+function updateFlorinBubble() {
+  const bubble = document.querySelector('.florin-bubble');
+  if (!bubble) return;
+  const currentLevel = Math.min(Math.floor(totalXP / 100) + 1, 6);
+  const active = getActiveFortbildung();
+
+  if (active) {
+    // Aktiver Auftrag: immer anzeigen
+    bubble.style.display = '';
+    bubble.textContent   = '🔬 Neue Lektion wartet!';
+  } else if (currentLevel <= 2) {
+    // Level 1–2, kein Auftrag: Bubble komplett ausblenden
+    bubble.style.display = 'none';
+  } else {
+    // Ab Level 3, kein Auftrag: nur bei jedem 3. Wander-Zyklus anzeigen
+    if (_florinBubbleCycleCount % 3 === 0) {
+      bubble.style.display = '';
+      bubble.textContent   = 'Du kannst mich alles fragen!';
+    } else {
+      bubble.style.display = 'none';
+    }
+  }
+}
+
+// ==================== EQUIPMENT SYSTEM ====================
+// trophyImg  – PNG shown in the Herbarium trophy tab (preview icon)
+// overlayImg – PNG layered over Florin on the homescreen when equipped
+// overlayPos – inline CSS string positioning the overlay within .florin-figure
+// lucideIcon – fallback Lucide icon name for items without a trophyImg yet
+// Only ONE item can be equipped at a time (radio-button logic in toggleEquip).
+
+const equipmentItems = [
+  {
+    id: 'apron',
+    name: 'Gärtnerschürze',
+    desc: 'Freigeschaltet ab Level 2',
+    bg: '#e8f5e9',
+    trophyImg:  'assets/Trophies/apron.png',
+    overlayImg: 'assets/Trophies/apron.png',
+    // Sits on Florin's torso: centred horizontally, just below the chin.
+    // ↕ Adjust 'top' in small steps if it needs to move up/down.
+    overlayPos: 'width:56px;top:65px;left:50%;transform:translateX(-50%)',
+    isUnlocked: () => Math.min(Math.floor(totalXP / 100) + 1, 6) >= 2,
+    equipped: false  // overlay deactivated – pure collectible for now
+  },
+  {
+    id: 'badge',
+    name: 'Frühjahrspionier-Abzeichen',
+    desc: 'Alle Frühblüher bestimmt',
+    bg: '#e3f2fd',
+    trophyImg:  'assets/Trophies/pinbadge.png',
+    overlayImg: 'assets/Trophies/pinbadge.png',
+    // Small pin badge on upper-right chest area
+    overlayPos: 'width:28px;top:72px;right:14px',
+    isUnlocked: () => allSpringPlants.every(id => herbarium.includes(id)),
+    equipped: false
+  },
+  {
+    id: 'hat',
+    name: 'Entdeckerhut',
+    desc: 'Freigeschaltet ab Level 1',
+    bg: '#fff9c4',
+    trophyImg:  'assets/Trophies/hat.png',
+    overlayImg: 'assets/Trophies/hat.png',
+    overlayPos: 'width:58px;top:-18px;left:50%;transform:translateX(-30%) rotate(-8deg)',
+    isUnlocked: () => Math.min(Math.floor(totalXP / 100) + 1, 6) >= 1,
+    equipped: false
+  },
+  {
+    id: 'magnifier',
+    name: 'Goldene Lupe',
+    desc: 'Freigeschaltet ab Level 5',
+    bg: '#fffde7',
+    trophyImg:  'assets/Trophies/Lupe.png',
+    lucideIcon: null,
+    overlayImg: 'assets/Trophies/Lupe.png',
+    overlayPos: 'width:36px;bottom:22px;right:4px',
+    isUnlocked: () => Math.min(Math.floor(totalXP / 100) + 1, 6) >= 5,
+    equipped: false
+  },
+  {
+    id: 'diary',
+    name: 'Botanisches Tagebuch',
+    desc: '10 Pflanzen im Herbarium',
+    bg: '#f3e5f5',
+    trophyImg:  null,
+    lucideIcon: 'book-open',
+    overlayImg: null,
+    overlayPos: 'width:34px;bottom:22px;left:4px',
+    isUnlocked: () => herbarium.length >= 10,
+    equipped: false
+  },
+  {
+    id: 'bee',
+    name: 'Fleißige Biene',
+    desc: '3 Pflanzen im Herbarium',
+    bg: '#fff8e1',
+    trophyImg:  'assets/Trophies/insects/Bee.png',
+    lucideIcon: null,
+    overlayImg: null,
+    overlayPos: null,
+    isUnlocked: () => herbarium.length >= 3,
+    equipped: false
+  }
+];
+
+// ==================== BESTÄUBER-SYSTEM ====================
+// Pollinatoren fliegen über den Homescreen sobald freigeschaltet.
+// Drei Verhaltensmuster: Pflanze→Pflanze, Kreisbahn, Drift.
+
+const pollinatorDefs = [
+  {
+    id:         'bee',
+    img:        'assets/Trophies/insects/Bee.png',
+    size:       38,
+    isUnlocked: () => herbarium.length >= 3,
+    interval:   28000,   // ms zwischen Auftritten
+    speed:      9000,    // ms für eine Überquerung
+  }
+];
+
+let _pollinatorTimers = {};
+
+function showTrophyUnlock(item) {
+  const toast = document.getElementById('trophyUnlockToast');
+  document.getElementById('trophyUnlockImg').src  = item.trophyImg || '';
+  document.getElementById('trophyUnlockImg').style.display = item.trophyImg ? 'block' : 'none';
+  document.getElementById('trophyUnlockName').textContent  = item.name;
+  document.getElementById('trophyUnlockDesc').textContent  = item.desc;
+  toast.style.display = 'block';
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.5s ease';
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      toast.style.display  = 'none';
+      toast.style.opacity  = '1';
+      toast.style.transition = '';
+    }, 500);
+  }, 3200);
+}
+
+function initPollinators() {
+  pollinatorDefs.forEach(def => {
+    if (!def.isUnlocked()) return;
+    _schedulePollinatorFlight(def);
+  });
+}
+
+function _schedulePollinatorFlight(def) {
+  if (_pollinatorTimers[def.id]) clearTimeout(_pollinatorTimers[def.id]);
+  const delay = def.interval + Math.random() * 10000;
+  _pollinatorTimers[def.id] = setTimeout(() => {
+    _launchPollinatorFlight(def);
+  }, delay);
+}
+
+function _launchPollinatorFlight(def) {
+  if (!def.isUnlocked()) return;
+  if (activePanel) { _schedulePollinatorFlight(def); return; } // Panel offen → später nochmal
+
+  const shell  = document.getElementById('phone-shell');
+  const W      = shell.offsetWidth;
+  const H      = shell.offsetHeight;
+  const rect   = shell.getBoundingClientRect();
+
+  // Wähle zufälliges Verhalten
+  const mode = Math.random();
+  let el = document.createElement('img');
+  el.src = def.img;
+  el.style.cssText = `position:fixed;width:${def.size}px;height:${def.size}px;
+    object-fit:contain;z-index:45;pointer-events:none;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.18));
+    transition:none;`;
+  document.body.appendChild(el);
+
+  if (mode < 0.45 && herbarium.length >= 2) {
+    // ── Modus A: Pflanze → Pflanze ──────────────────────────
+    const pins = pinData.filter(p => herbarium.includes(p.id));
+    if (pins.length < 2) { el.remove(); _schedulePollinatorFlight(def); return; }
+    const shuffle = [...pins].sort(() => Math.random() - 0.5);
+    const [from, to] = shuffle.slice(0, 2);
+    const shell2 = document.getElementById('phone-shell');
+    const sr     = shell2.getBoundingClientRect();
+    const vbW = 460, vbH = 820;
+    const scaleX = shell2.offsetWidth  / vbW;
+    const scaleY = shell2.offsetHeight / vbH;
+    const fx = sr.left + from.svgX * scaleX;
+    const fy = sr.top  + from.svgY * scaleY;
+    const tx = sr.left + to.svgX   * scaleX;
+    const ty = sr.top  + to.svgY   * scaleY;
+
+    el.style.left = (fx - def.size / 2) + 'px';
+    el.style.top  = (fy - def.size / 2) + 'px';
+    el.style.opacity = '0';
+
+    requestAnimationFrame(() => {
+      el.style.transition = `opacity 0.6s ease`;
+      el.style.opacity = '1';
+      setTimeout(() => {
+        el.style.transition = `left ${def.speed}ms cubic-bezier(0.45,0.05,0.55,0.95),
+                               top  ${def.speed}ms cubic-bezier(0.45,0.05,0.55,0.95)`;
+        el.style.left = (tx - def.size / 2) + 'px';
+        el.style.top  = (ty - def.size / 2) + 'px';
+        setTimeout(() => {
+          el.style.transition = 'opacity 0.7s ease';
+          el.style.opacity = '0';
+          setTimeout(() => { el.remove(); _schedulePollinatorFlight(def); }, 750);
+        }, def.speed + 200);
+      }, 500);
+    });
+
+  } else if (mode < 0.75) {
+    // ── Modus B: Kreisbahn ──────────────────────────────────
+    const cx   = rect.left + W * (0.3 + Math.random() * 0.4);
+    const cy   = rect.top  + H * (0.25 + Math.random() * 0.3);
+    const r    = 50 + Math.random() * 40;
+    const dur  = 5000 + Math.random() * 3000;
+    const startAngle = Math.random() * Math.PI * 2;
+
+    el.style.left    = (cx + r * Math.cos(startAngle) - def.size / 2) + 'px';
+    el.style.top     = (cy + r * Math.sin(startAngle) - def.size / 2) + 'px';
+    el.style.opacity = '0';
+
+    const startTime = performance.now();
+    const totalTime = dur + 1200;
+
+    requestAnimationFrame(function tick(now) {
+      const t = now - startTime;
+      if (t < 400) {
+        el.style.opacity = String(t / 400);
+      } else if (t > totalTime - 600) {
+        el.style.opacity = String(Math.max(0, (totalTime - t) / 600));
+      } else {
+        el.style.opacity = '1';
+      }
+      const angle = startAngle + (t / dur) * Math.PI * 2;
+      el.style.left = (cx + r * Math.cos(angle) - def.size / 2) + 'px';
+      el.style.top  = (cy + r * Math.sin(angle) - def.size / 2) + 'px';
+      if (t < totalTime) {
+        requestAnimationFrame(tick);
+      } else {
+        el.remove();
+        _schedulePollinatorFlight(def);
+      }
+    });
+
+  } else {
+    // ── Modus C: Drift (eine Seite zur anderen) ─────────────
+    const fromLeft = Math.random() < 0.5;
+    const yFrac    = 0.15 + Math.random() * 0.55;
+    const sx = fromLeft ? rect.left - def.size : rect.right + def.size;
+    const sy = rect.top + H * yFrac;
+    const ex = fromLeft ? rect.right + def.size : rect.left - def.size;
+    // leichte vertikale Kurve via intermediate waypoint
+    const midY = sy + (Math.random() - 0.5) * 80;
+
+    el.style.left    = (sx - def.size / 2) + 'px';
+    el.style.top     = (sy - def.size / 2) + 'px';
+    el.style.opacity = '0';
+
+    const startTime = performance.now();
+    requestAnimationFrame(function tick(now) {
+      const t = Math.min((now - startTime) / def.speed, 1);
+      // quadratic bezier: P = (1-t)²·S + 2(1-t)t·M + t²·E
+      const mt = 1 - t;
+      const mx = rect.left + W / 2;
+      const x  = mt * mt * sx + 2 * mt * t * mx + t * t * ex;
+      const y  = mt * mt * sy + 2 * mt * t * midY + t * t * sy;
+      el.style.left = (x - def.size / 2) + 'px';
+      el.style.top  = (y - def.size / 2) + 'px';
+      el.style.opacity = t < 0.08 ? String(t / 0.08)
+                       : t > 0.88 ? String((1 - t) / 0.12)
+                       : '1';
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        el.remove();
+        _schedulePollinatorFlight(def);
+      }
+    });
+  }
+}
+
+// Render the equipped item as a PNG overlay inside .florin-figure.
+// Only items with a real overlayImg are shown – no emoji fallback.
+function renderFlorinEquipment() {
+  const layer = document.getElementById('florinEquipLayer');
+  if (!layer) return;
+  // Only the single equipped item that also has a PNG (radio-button: max one)
+  const active = equipmentItems.find(item => item.equipped && item.isUnlocked() && item.overlayImg);
+  if (!active) { layer.innerHTML = ''; return; }
+  layer.innerHTML = `<img src="${active.overlayImg}" alt="${active.name}"
+    class="florin-equip-item" style="${active.overlayPos}"
+    onerror="this.style.display='none'">`;
+}
+
+// Radio-button equip: clicking an equipped item un-equips it;
+// clicking an unequipped item un-equips all others first.
+function toggleEquip(id) {
+  const item = equipmentItems.find(i => i.id === id);
+  if (!item || !item.isUnlocked()) return;
+  if (item.equipped) {
+    item.equipped = false;
+  } else {
+    equipmentItems.forEach(i => { i.equipped = false; }); // deselect all
+    item.equipped = true;
+  }
+  renderFlorinEquipment();
+  renderTrophyTab();
+  saveEquipment();
+}
+
+// Dynamic trophy tab – no emojis; uses trophyImg PNGs or Lucide fallback icons.
+function renderTrophyTab() {
+  const container = document.getElementById('herb-tab-trophies');
+  if (!container) return;
+  container.innerHTML = `
+    <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:12px">
+      Freischalten durch Levelaufstiege &amp; Entdeckungen!
+    </div>
+    ${equipmentItems.map(item => {
+      const unlocked = item.isUnlocked();
+      const eq       = item.equipped;
+      // Trophy icon: real PNG if available, Lucide icon otherwise
+      const iconHtml = item.trophyImg
+        ? `<img src="${item.trophyImg}" alt="${item.name}"
+                style="width:34px;height:34px;object-fit:contain;
+                       filter:drop-shadow(0 1px 3px rgba(0,0,0,0.14))">`
+        : `<i data-lucide="${item.lucideIcon}"
+              style="width:26px;height:26px;color:var(--muted)"></i>`;
+      return `
+        <div class="trophy-item ${unlocked ? '' : 'locked'}" style="position:relative">
+          <div class="trophy-icon" style="background:${item.bg}">${iconHtml}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:800;font-size:14px;color:var(--ink)">${item.name}</div>
+            <div style="font-size:12px;color:var(--muted)">${item.desc}</div>
+            ${unlocked
+              ? `<div style="display:inline-flex;align-items:center;gap:4px;
+                             margin-top:4px;background:#e8f5e9;border-radius:50px;
+                             padding:3px 10px;font-size:11px;font-weight:800;color:#2e7d32">
+                   ✓ In deiner Sammlung
+                 </div>`
+              : `<div style="font-size:12px;font-weight:700;color:#9e8060;margin-top:3px">Noch gesperrt</div>`
+            }
+          </div>
+        </div>`;
+    }).join('')}
+  `;
+  lucide.createIcons();
+}
+
+// Persist equipped state in localStorage (survives page reloads)
+function saveEquipment() {
+  try {
+    const state = {};
+    equipmentItems.forEach(i => { state[i.id] = i.equipped; });
+    localStorage.setItem('scavengerHunt_equip', JSON.stringify(state));
+  } catch(e) {}
+}
+
+function loadEquipment() {
+  try {
+    const raw = localStorage.getItem('scavengerHunt_equip');
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    equipmentItems.forEach(i => {
+      if (state[i.id] !== undefined) i.equipped = state[i.id];
+    });
+  } catch(e) {}
+}
+
+function openQuizForPlant(id) {
+  currentPlantForQuiz = id;
+  quizState = { node: 'L1', path: [] };   // Baum immer von vorne starten
+  if (activePanel) _deactivatePanel(activePanel);
+  _activatePanel('quiz');
+  renderQuizPage();
+}
+
+// ==================== TOP BAR ====================
+function updateTopBar() {
+  document.getElementById('levelNum').textContent = Math.min(Math.floor(totalXP / 100) + 1, 6);
+  document.getElementById('herbCount').textContent = herbarium.length;
+}
+
+// ==================== MAP PIN MINI-CARD ====================
+// Only called from map pins. Plants reach the map exclusively via
+// the camera scan → quiz → herbarium flow; the mini-card never
+// offers an "Ins Körbchen" action.
+function showMapPinCard(id) {
+  const p = plants[id];
+  if (!p) return;
+  document.getElementById('mapPinCardContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <img src="${p.plantImg}" alt="${p.name}"
+           style="width:64px;height:64px;object-fit:contain;flex-shrink:0;
+                  filter:drop-shadow(0 3px 6px rgba(0,0,0,0.18))">
+      <div>
+        <div style="font-size:18px;font-weight:900;color:var(--ink);line-height:1.2">${p.name}</div>
+        <div style="font-size:13px;color:var(--muted);font-style:italic;
+                    font-family:'Lora',serif;margin-top:2px">${p.latin}</div>
+        <div style="display:inline-block;background:#e8f5e9;color:#2e7d32;border-radius:50px;
+                    padding:3px 12px;font-size:11px;font-weight:800;margin-top:6px">
+          ✓ Im Herbarium
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="openFromMapPin('${id}')"
+            style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px">
+      <img src="assets/icons/Buch.png" alt="" style="width:18px;height:18px;object-fit:contain;filter:brightness(10)">
+      Vollständigen Eintrag im Herbarium ansehen
+    </button>
+    <div style="margin-top:10px;text-align:center">
+      <button class="btn-secondary" onclick="closeMapPinCard()">Schließen</button>
+    </div>
+  `;
+  document.getElementById('mapPinCard').classList.add('open');
+  florinHide();
+  lucide.createIcons();
+}
+
+function openFromMapPin(id) {
+  closeMapPinCard();
+  // Small delay so the card closes before the panel animates in
+  setTimeout(() => {
+    if (activePanel !== 'herbarium') togglePanel('herbarium');
+    // Wait for panel to render, then show full popup
+    setTimeout(() => showPlantPopup(id), 200);
+  }, 160);
+}
+
+function closeMapPinCard() {
+  document.getElementById('mapPinCard').classList.remove('open');
+  florinShow();
+}
+
+// ==================== PLANT POPUP ====================
+function showPlantPopup(id) {
+  const p = plants[id];
+  if (!p) return;
+  galleryIndex = 0;
+  const inHerb = herbarium.includes(id);
+  const inBask = basket.includes(id);
+  const stars = '⭐'.repeat(p.stars) + '☆'.repeat(5 - p.stars);
+
+  const galleryHtml = inHerb ? `
+    <div class="plant-gallery">
+      <button class="gallery-arrow" onclick="galleryMove(-1)">&#8249;</button>
+      <div class="gallery-frame">
+        <div class="gallery-img-wrap">
+          <img id="galleryImg" src="${p.plantImg}" alt="${p.name}" class="gallery-img"
+               style="transform:scale(1.0)">
+        </div>
+        <div class="gallery-label" id="galleryLabel">Pflanzenmodell</div>
+        <div class="gallery-dots">
+          <span class="gallery-dot active"></span>
+          <span class="gallery-dot"></span>
+          <span class="gallery-dot"></span>
+          <span class="gallery-dot"></span>
+        </div>
+      </div>
+      <button class="gallery-arrow" onclick="galleryMove(1)">&#8250;</button>
+    </div>` : `
+    <div style="text-align:center;margin-bottom:14px">
+      <img src="${p.plantImg}" alt="${p.name}"
+           style="width:90px;height:90px;object-fit:contain;display:inline-block;
+                  filter:drop-shadow(0 4px 10px rgba(0,0,0,0.20))">
+    </div>`;
+
+  document.getElementById('popupContent').innerHTML = `
+    ${galleryHtml}
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:20px;font-weight:900;color:var(--ink)">${p.name}</div>
+      <div style="font-size:14px;color:var(--muted);font-style:italic;font-family:'Lora',serif">${p.latin}</div>
+      <div style="margin-top:6px;font-size:16px">${stars}</div>
+      ${inHerb ? '<div style="display:inline-block;background:#e8f5e9;color:#2e7d32;border-radius:50px;padding:3px 14px;font-size:12px;font-weight:800;margin-top:6px">&#10003; Im Herbarium</div>' : ''}
+    </div>
+    <div style="background:rgba(130,160,120,0.1);border-radius:13px;padding:12px;margin-bottom:12px">
+      <div class="section-label">Systematik &amp; Ökologie</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div><span style="color:var(--muted);font-weight:600">Familie:</span><br><span style="font-weight:700;color:var(--ink)">${p.family}</span></div>
+        <div><span style="color:var(--muted);font-weight:600">Blühzeit:</span><br><span style="font-weight:700;color:var(--ink)">${p.bloomTime}</span></div>
+        <div><span style="color:var(--muted);font-weight:600">Standort:</span><br><span style="font-weight:700;color:var(--ink)">${p.habitat}</span></div>
+        <div><span style="color:var(--muted);font-weight:600">Bestäuber:</span><br><span style="font-weight:700;color:var(--ink)">${p.pollinators}</span></div>
+      </div>
+    </div>
+    <div class="lore-box">
+      <div style="font-size:11px;font-weight:800;color:#7d5a00;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;font-style:normal;font-family:'Nunito',sans-serif">Fun Facts</div>
+      <div style="font-size:13px;color:#5d4037;line-height:1.7">${p.lore}</div>
+    </div>
+    ${!inHerb && !inBask ? `<div style="margin-top:14px;text-align:center"><button class="btn-primary" onclick="addToBasket('${id}');closePopupDirect()"><img src="assets/icons/Koerbchen.png" alt="" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:6px">Ins Körbchen legen</button></div>` : ''}
+    ${inBask && !inHerb ? `<div style="margin-top:14px;text-align:center"><button class="btn-primary" onclick="closePopupDirect();openQuizForPlant('${id}')">Jetzt bestimmen!</button></div>` : ''}
+    ${inHerb ? `<div style="margin-top:16px;text-align:center">
+      <button onclick="closePopupDirect();openHerbariumAtPlant('${id}')"
+        style="background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;
+               font-size:12px;font-weight:700;color:var(--muted);text-decoration:underline;
+               text-decoration-color:rgba(122,101,82,0.4);padding:4px 8px">
+        Im Herbarium ansehen →
+      </button>
+    </div>` : ''}
+  `;
+  document.getElementById('plantPopup').style.display = 'flex';
+  florinHide();
+}
+
+function closePopupDirect() {
+  document.getElementById('plantPopup').style.display = 'none';
+  florinShow();
+}
+
+// ---- Foto-Galerie im Steckbrief ----
+const galleryPhotos = [
+  { label: 'Blütenaufnahme',  transform: 'scale(1.18) translateY(-6%)' },
+  { label: 'Blattaufnahme',   transform: 'scale(0.92) rotate(-4deg)'  },
+  { label: 'Gesamtaufnahme',  transform: 'scale(1.0)'                 }
+];
+// Gallery: 4 slides — index 0 = clean plant model, 1–3 = photo placeholders
+const GALLERY_TOTAL = 4;
+
+function galleryMove(dir) {
+  galleryIndex = (galleryIndex + dir + GALLERY_TOTAL) % GALLERY_TOTAL;
+  const img = document.getElementById('galleryImg');
+  const lbl = document.getElementById('galleryLabel');
+  if (galleryIndex === 0) {
+    // Slide 0: sauberes Pflanzenmodell
+    if (img) {
+      img.style.transform = 'scale(1.0)';
+      img.classList.remove('gallery-img--photo');
+    }
+    if (lbl) lbl.textContent = 'Pflanzenmodell';
+  } else {
+    // Slides 1–3: simulierte eigene Aufnahmen
+    const photo = galleryPhotos[galleryIndex - 1];
+    if (img) {
+      img.style.transform = photo.transform;
+      img.classList.add('gallery-img--photo');
+    }
+    if (lbl) lbl.textContent = photo.label + ' · Eigenes Foto';
+  }
+  document.querySelectorAll('.gallery-dot').forEach((d, i) =>
+    d.classList.toggle('active', i === galleryIndex));
+}
+
+// ==================== CAMERA VIEWFINDER ====================
+function openCameraOverlay() {
+  scanStep      = 1;
+  pendingScanId = null;
+  document.getElementById('camScanLine').style.display  = 'none';
+  document.getElementById('camStatus').style.display    = 'none';
+  document.getElementById('camHint').textContent        = 'Mache ein Bild von der Blüte';
+  document.getElementById('camHint').style.display      = 'block';
+  document.getElementById('camFocusRing').style.display = 'block';
+  document.getElementById('camFlash').style.opacity     = '0';
+  document.getElementById('shutterBtn').disabled        = false;
+  updateStepDots(0);
+  document.getElementById('cameraOverlay').classList.add('open');
+}
+
+function closeCameraOverlay() {
+  scanStep      = 1;
+  pendingScanId = null;
+  document.getElementById('cameraOverlay').classList.remove('open');
+}
+
+function updateStepDots(filled) {
+  document.getElementById('camStepDots').innerHTML =
+    [1,2,3].map(i => `<span class="cam-dot ${i <= filled ? 'filled' : ''}"></span>`).join('');
+}
+
+function triggerScan() {
+  const shutter   = document.getElementById('shutterBtn');
+  const scanLine  = document.getElementById('camScanLine');
+  const status    = document.getElementById('camStatus');
+  const hint      = document.getElementById('camHint');
+  const focusRing = document.getElementById('camFocusRing');
+  const flash     = document.getElementById('camFlash');
+
+  shutter.disabled = true;
+
+  // Lock the plant ID on step 1
+  if (scanStep === 1) {
+    pendingScanId = scanPool[scanIndex % scanPool.length];
+    scanIndex++;
+  }
+
+  // Flash
+  flash.style.opacity = '1';
+  setTimeout(() => { flash.style.opacity = '0'; }, 140);
+
+  // Kurz "Bild gespeichert" zeigen, dann weiter
+  setTimeout(() => {
+    hint.style.display       = 'none';
+    focusRing.style.display  = 'none';
+    status.textContent   = '✓ Bild gespeichert';
+    status.style.display = 'block';
+  }, 150);
+
+  setTimeout(() => {
+    status.style.display    = 'none';
+    focusRing.style.display = 'block';
+
+    updateStepDots(scanStep);
+
+    if (scanStep < 3) {
+      scanStep++;
+      const nextHint = {
+        2: 'Mache ein Bild von den Blättern',
+        3: 'Fotografiere die ganze Pflanze'
+      }[scanStep];
+      hint.textContent   = nextHint;
+      hint.style.display = 'block';
+      shutter.disabled   = false;
+    } else {
+      // All 3 photos done — show success briefly, then finalize
+      status.textContent   = '✓ Pflanze erfasst!';
+      status.style.display = 'block';
+      setTimeout(() => {
+        const id = pendingScanId || scanPool[0];  // capture before close resets it
+        closeCameraOverlay();   // resets scanStep + pendingScanId
+        const p  = plants[id];
+        const fb = document.getElementById('scanFeedback');
+
+        const pThumb = `<img src="${p.plantImg}" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:5px;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.18))">`;
+        if (herbarium.includes(id)) {
+          fb.innerHTML = `<span style="color:#f57f17">${pThumb}${p.name} – schon im Herbarium!</span>`;
+        } else if (basket.includes(id)) {
+          fb.innerHTML = `<span style="color:#f57f17">${pThumb}Bereits im Körbchen – noch nicht bestimmt!</span>`;
+        } else {
+          addToBasket(id);
+          const mystery = getMysteryName(p);
+          fb.innerHTML = `<span style="color:#2e7d32">${pThumb}<strong>${mystery}</strong> ins Körbchen! <img src="assets/icons/Koerbchen.png" alt="" style="width:22px;height:22px;object-fit:contain;vertical-align:middle"></span>`;
+          spawnFloatingPlant(p.plantImg);
+        }
+        fb.style.display = 'block';
+        setTimeout(() => { fb.style.display = 'none'; }, 3600);
+      }, 700);
+    }
+  }, 600);
+}
+
+function spawnFloatingPlant(plantImg) {
+  const el = document.createElement('img');
+  el.src = plantImg;
+  el.style.cssText = 'position:fixed;width:90px;height:90px;object-fit:contain;left:50%;top:50%;transform:translate(-50%,-50%);z-index:999;pointer-events:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.25));animation:floatUp 1.5s ease forwards;';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1600);
+}
+
+// ==================== LERN-SESSION ====================
+function openLernSession(id) {
+  const lesson = fortbildungLessons.find(l => l.id === id);
+  if (!lesson) return;
+  const content = document.getElementById('lernsessionContent');
+  if (content) content.innerHTML = _buildLernSessionHTML(lesson);
+  _activatePanel('lernsession');
+  lucide.createIcons();
+}
+
+function _buildLernSessionHTML(lesson) {
+  const typeLabel = lesson.type === 'puzzle' ? 'Interaktives Puzzle' : 'Lektion';
+  return `
+    <div class="lernsession-header">
+      <div class="fortbild-level-badge" style="margin-bottom:10px">Level ${lesson.level} · ${typeLabel}</div>
+      <div class="lernsession-title">${lesson.title}</div>
+      <div class="lernsession-subtitle">${lesson.desc}</div>
+    </div>
+    <div class="lernsession-placeholder">
+      ${lesson.type === 'puzzle'
+        ? `<div style="font-size:36px;margin-bottom:12px">🧩</div>
+           <strong>Drag &amp; Drop Puzzle</strong><br>
+           Ziehe Kronblätter, Kelchblätter und Staubblätter an die richtige Stelle der Blüte.<br>
+           <span style="font-size:11px;opacity:0.7;margin-top:8px;display:block">Grafik-Assets werden noch vorbereitet …</span>`
+        : `<div style="font-size:36px;margin-bottom:12px">📖</div>
+           <strong>Interaktiver Inhalt folgt</strong><br>
+           Diese Lektion wird gerade gestaltet.`
+      }
+    </div>
+    <button class="lernsession-complete-btn" onclick="completeLernSession('${lesson.id}')">
+      Lektion abschließen ✓
+    </button>
+  `;
+}
+
+function completeLernSession(id) {
+  const lesson = fortbildungLessons.find(l => l.id === id);
+  if (!lesson || lesson.completed) return;
+  lesson.completed = true;
+  totalXP += lesson.xp;
+  document.getElementById('levelNum').textContent = Math.min(Math.floor(totalXP / 100) + 1, 6);
+  closePanel('lernsession');
+  // Show brief success toast
+  const fb = document.getElementById('scanFeedback');
+  if (fb) {
+    fb.innerHTML = `<span style="color:#2e7d32">✓ <strong>${lesson.title}</strong> abgeschlossen! +${lesson.xp} XP</span>`;
+    fb.style.display = 'block';
+    setTimeout(() => { fb.style.display = 'none'; }, 3000);
+  }
+  updateFlorinBubble();
+  renderFlorinTasks();
+  renderTodos();
+}
+
+// ==================== BASKET ====================
+function getMysteryName(p) {
+  if (p.stars >= 4) return 'Seltener Fund ✦';
+  if (p.stars >= 3) return 'Geheimnisvoller Fund';
+  return 'Unbekannte Pflanze';
+}
+
+function addToBasket(id) {
+  if (basket.includes(id) || herbarium.includes(id)) return;
+  basket.push(id);
+  updateBadge();
+}
+
+function updateBadge() {
+  const badge = document.getElementById('basketBadge');
+  badge.style.display = basket.length > 0 ? 'block' : 'none';
+  badge.textContent   = basket.length;
+}
+
+function renderBasket() {
+  const c = document.getElementById('basketContent');
+  if (basket.length === 0) {
+    c.innerHTML = `<div style="text-align:center;padding:30px 12px">
+      <div style="margin-bottom:12px"><img src="assets/icons/Koerbchen.png" alt="Körbchen" style="width:58px;height:58px;object-fit:contain;opacity:0.7"></div>
+      <div style="font-size:14px;font-weight:700;color:var(--muted)">Das Körbchen ist leer.</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">
+        Fotografiere Pflanzen mit dem Kamera-Knopf!
+      </div>
+    </div>`;
+    return;
+  }
+  c.innerHTML = basket.map(id => {
+    const p = plants[id];
+    const mystery = getMysteryName(p);
+    return `<div class="basket-item">
+      <img src="${p.plantImg}" alt="${mystery}" class="basket-plant-img">
+      <div class="basket-info">
+        <div class="basket-name">${mystery}</div>
+        <button class="btn-determine" onclick="openQuizForPlant('${id}')">Jetzt bestimmen</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ==================== TO-DOS ====================
+const todoData = [
+  {
+    type:'Suchauftrag', xp:2,
+    desc:'Schalte eine neue Pflanzenfamilie frei',
+    id:'find-family',
+    isDone: () => [...new Set(herbarium.map(i => plants[i].family))].length >= 2
+  },
+  {
+    type:'Lippenblütler', xp:3,
+    desc:'Finde eine Taubnessel',
+    tag:'Blühzeit: April – Oktober',
+    id:'gefleckte_taubnessel',
+    isDone: () => herbarium.includes('gefleckte_taubnessel')
+  },
+  {
+    type:'Korbblütler', xp:2,
+    desc:'Bestimme das Gänseblümchen',
+    tag:'Blühzeit: März – November',
+    id:'gaenseblumchen',
+    isDone: () => herbarium.includes('gaenseblumchen')
+  },
+];
+
+function _todoIconHtml(t) {
+  // Fortbildungsauftrag → Florin-Kopf (kreisförmig gecroppt)
+  if (t.type === 'Fortbildungsauftrag') {
+    return `<div style="width:38px;height:38px;border-radius:50%;overflow:hidden;
+                        border:1.5px solid rgba(139,104,72,0.22);
+                        background:rgba(255,248,228,0.85);flex-shrink:0">
+      <img src="assets/Gardener.png"
+           style="width:95px;height:auto;margin-left:-28px;margin-top:-4px;display:block">
+    </div>`;
+  }
+  // Pflanzenbezogen → Plant-PNG wenn id in plants{} vorhanden
+  if (t.id && plants[t.id] && plants[t.id].plantImg) {
+    return `<img src="${plants[t.id].plantImg}"
+                 style="width:42px;height:42px;object-fit:contain;flex-shrink:0;
+                        filter:drop-shadow(0 2px 5px rgba(0,0,0,0.16))">`;
+  }
+  // Suchauftrag (allgemein) → Camera.png
+  return `<img src="assets/icons/Camera.png"
+               style="width:34px;height:34px;object-fit:contain;flex-shrink:0;opacity:0.85">`;
+}
+
+function renderTodos() {
+  // Offene zuerst, dann erledigte – max 4 anzeigen
+  const sorted = [
+    ...todoData.filter(t => !t.isDone()),
+    ...todoData.filter(t =>  t.isDone())
+  ].slice(0, 4);
+
+  document.getElementById('todoContent').innerHTML = sorted.map(t => {
+    const done = t.isDone();
+    return `<div class="todo-card ${done ? 'done' : ''}">
+      <div class="todo-icon-box">${_todoIconHtml(t)}</div>
+      <div class="todo-body">
+        <div class="todo-header">
+          <div class="todo-title">${t.type}</div>
+          <div class="todo-xp">${t.xp} <i data-lucide="leaf" style="width:12px;height:12px;color:#3a7d3a;display:inline-block;vertical-align:middle"></i></div>
+        </div>
+        <div class="todo-desc">${t.desc}</div>
+        ${t.tag ? `<span class="todo-tag">${t.tag}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+// ==================== QUIZ (Botanischer Entscheidungsbaum) ====================
+
+function renderQuizPage() {
+  const c = document.getElementById('quizContent');
+  if (!currentPlantForQuiz) {
+    c.innerHTML = `
+      <div style="text-align:center;padding:36px 12px">
+        <img src="assets/icons/Camera.png" alt=""
+             style="width:52px;height:52px;object-fit:contain;opacity:0.55;
+                    margin-bottom:12px;display:block;margin-left:auto;margin-right:auto">
+        <div style="font-size:14px;font-weight:700;color:var(--muted)">
+          Keine Pflanze im Körbchen.
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn-primary" onclick="togglePanel('basket')">
+            <img src="assets/icons/Koerbchen.png" alt=""
+                 style="width:18px;height:18px;object-fit:contain;vertical-align:middle;margin-right:6px">
+            Zum Körbchen
+          </button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (!quizState) quizState = { node: 'L1', path: [] };
+  quizPhotoIndex  = 0;
+  quizPhotoZoomed = false;
+
+  const node     = quizTree[quizState.node];
+  const p        = plants[currentPlantForQuiz];
+  const stepNum  = quizState.node === 'L1' ? 1 : 2;
+  const progress = quizState.node === 'L1' ? 50 : 100;
+
+  // Build option cards — last card gets full-width class when total is odd
+  const optHtml = node.options.map((opt, i) => {
+    const isFullW = (node.options.length % 2 === 1) && (i === node.options.length - 1);
+    return `
+      <button class="quiz-option-card${isFullW ? ' full-width' : ''}"
+              onclick="handleQuizChoice('${opt.id}')">
+        <div class="quiz-img-wrap">
+          <img src="${opt.img}" alt="${opt.label}" class="quiz-img"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="quiz-img-placeholder" style="display:none">
+            <i data-lucide="image" style="width:22px;height:22px;color:rgba(139,104,72,0.35)"></i>
+          </div>
+        </div>
+        <div class="quiz-opt-text">
+          <div class="quiz-opt-label">${opt.label}</div>
+          <div class="quiz-opt-desc">${opt.desc}</div>
+        </div>
+      </button>`;
+  }).join('');
+
+  c.innerHTML = `
+    <!-- ① Foto-Kachel mit Pfeilen, Swipe & Doppeltipp-Zoom -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <button class="gallery-arrow" onclick="quizPhotoNav(-1)">&#8249;</button>
+      <div class="quiz-photo-tile" style="flex:1;margin-bottom:0"
+           ontouchstart="quizTouchStart(event)"
+           ontouchend="quizTouchEnd(event)"
+           onclick="quizPhotoTap(event)">
+        <div class="quiz-photo-inner">
+          <img id="quizPhotoImg" src="${p.plantImg}" alt="${p.name}"
+               class="quiz-photo-img"
+               style="transform:scale(1.0)">
+        </div>
+        <div class="quiz-photo-dots">
+          <span class="quiz-photo-dot active"></span>
+          <span class="quiz-photo-dot"></span>
+          <span class="quiz-photo-dot"></span>
+          <span class="quiz-photo-dot"></span>
+        </div>
+        <div id="quizPhotoLabel" class="quiz-photo-label">Pflanzenmodell</div>
+        <div id="quizZoomHint"   class="quiz-zoom-hint">⊕ Einzoomen</div>
+      </div>
+      <button class="gallery-arrow" onclick="quizPhotoNav(1)">&#8250;</button>
+    </div>
+
+    <!-- ② Fortschrittsbalken -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:11px">
+      <span style="font-size:10px;font-weight:800;color:var(--muted);
+                   text-transform:uppercase;letter-spacing:0.07em;white-space:nowrap">
+        Schritt ${stepNum} / 2
+      </span>
+      <div style="flex:1;height:4px;background:rgba(139,104,72,0.14);border-radius:4px;overflow:hidden">
+        <div style="height:100%;background:var(--green-dark);border-radius:4px;
+                    width:${progress}%;transition:width 0.45s ease"></div>
+      </div>
+    </div>
+
+    <!-- ③ Frage als Sprechblase -->
+    <div class="quiz-question-bubble">${node.question}</div>
+
+    <!-- ④ Antwort-Kacheln im 2-Spalten-Raster -->
+    <div class="quiz-options-grid">
+      ${optHtml}
+    </div>
+
+    <!-- ⑤ Florin-Tipp (ein-/ausklappbar) -->
+    <div id="quizFlorinTip" style="display:none">
+      <div class="quiz-florin-tip">
+        <img src="assets/Gardener.png" alt="Florin" class="quiz-florin-avatar">
+        <div class="quiz-florin-text">„${node.florinTip}"</div>
+      </div>
+    </div>
+    <button class="quiz-hint-btn" onclick="toggleQuizFlorinHint()">
+      <span style="font-size:16px;font-weight:900;line-height:1">?</span>
+      Nicht erkennbar? Florin hilft!
+    </button>`;
+
+  lucide.createIcons();
+}
+
+// Benutzer wählt eine Option — Tree-Navigation oder Familienabgleich
+function handleQuizChoice(optionId) {
+  const node = quizTree[quizState.node];
+  const opt  = node.options.find(o => o.id === optionId);
+  if (!opt) return;
+
+  const newPath = [...quizState.path, optionId];
+
+  // Sonderoption: Florin löst die Pflanze direkt auf
+  if (opt.special) {
+    _showQuizReveal();
+    return;
+  }
+
+  // Weiterleitung auf nächste Stufe
+  if (opt.next) {
+    quizState = { node: opt.next, path: newPath };
+    renderQuizPage();
+    return;
+  }
+
+  // Endknoten: Familie der Pflanze mit der gewählten Familie abgleichen
+  const p = plants[currentPlantForQuiz];
+  if (familyMatches(p.family, opt.family)) {
+    _showQuizSuccess(opt);
+  } else {
+    _showQuizRetry(opt);
+  }
+}
+
+// Familien die im Bestimmungsschlüssel vorkommen — diese Pflanzen bekommen einen Hinweis statt Auflösung
+const KNOWN_QUIZ_FAMILIES = ['Brassicaceae','Ranunculaceae','Rosaceae','Apiaceae','Asteraceae','Fabaceae','Lamiaceae'];
+
+function _showQuizReveal() {
+  const p          = plants[currentPlantForQuiz];
+  const familyCode = (p.family.match(/\(([^)]+)\)/) || [])[1] || '';
+  const isKnown    = KNOWN_QUIZ_FAMILIES.includes(familyCode);
+
+  if (isKnown) {
+    // Familie ist im Schlüssel — Hinweis geben, nochmal versuchen
+    document.getElementById('quizContent').innerHTML = `
+      <div style="text-align:center;padding:10px 0 6px">
+        <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(245,240,229,0.88);
+                    border-radius:16px;padding:12px 14px;text-align:left;margin-bottom:14px">
+          <img src="assets/Gardener.png" alt="Florin" style="width:40px;height:40px;object-fit:contain;flex-shrink:0">
+          <div style="font-family:'Lora',serif;font-size:13px;font-style:italic;
+                      color:var(--ink);line-height:1.55">„Probiere es nochmal! Die Pflanzenfamilie ist im Bestimmungsschlüssel aufgeführt. Schau dir die Blütenform noch einmal genau an."</div>
+        </div>
+        <div style="background:rgba(46,125,50,0.08);border:1.5px solid rgba(46,125,50,0.18);
+                    border-radius:12px;padding:9px 13px;text-align:left;margin-bottom:16px;
+                    font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;color:var(--muted)">
+          Blühzeit: ${p.bloomTime} · Habitat: ${p.habitat}
+        </div>
+        <button class="btn-primary" onclick="quizState={node:'L1',path:[]};renderQuizPage()"
+                style="width:100%">Nochmal versuchen →</button>
+      </div>`;
+  } else {
+    // Familie nicht im Schlüssel — Florin deckt auf
+    document.getElementById('quizContent').innerHTML = `
+      <div style="text-align:center;padding:10px 0 6px">
+        <img src="${p.plantImg}" alt="${p.name}"
+             style="width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.18))">
+        <div style="font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;
+                    color:var(--muted);letter-spacing:0.08em;margin-top:14px">FLORIN VERRÄT ES DIR</div>
+        <div style="font-family:'Lora',serif;font-size:20px;font-weight:700;
+                    color:var(--ink);margin:6px 0 2px">${p.name}</div>
+        <div style="font-family:'Lora',serif;font-size:13px;font-style:italic;
+                    color:var(--muted);margin-bottom:12px">${p.latin}</div>
+        <div style="background:rgba(46,125,50,0.10);border:1.5px solid rgba(46,125,50,0.22);
+                    border-radius:14px;padding:10px 14px;text-align:left;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:800;color:var(--green-dark);
+                      letter-spacing:0.06em;margin-bottom:4px">FAMILIE</div>
+          <div style="font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+                      color:var(--ink)">${p.family}</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(245,240,229,0.8);
+                    border-radius:14px;padding:10px 12px;text-align:left;margin-bottom:16px">
+          <img src="assets/Gardener.png" alt="Florin" style="width:36px;height:36px;object-fit:contain;flex-shrink:0">
+          <div style="font-family:'Lora',serif;font-size:12px;font-style:italic;
+                      color:var(--ink);line-height:1.5">„Diese Pflanze gehört zu einer besonderen Familie, die noch nicht im Schlüssel steht – da muss man schon genau hinschauen! Jetzt weißt du es für immer."</div>
+        </div>
+        <button class="btn-primary" onclick="completeIdentification('${currentPlantForQuiz}')"
+                style="width:100%">Ins Herbarium aufnehmen ✓</button>
+      </div>`;
+  }
+}
+
+// ---- Foto-Kachel: Touch-Swipe ----
+function quizPhotoNav(dir) {
+  quizPhotoZoomed = false;
+  quizPhotoIndex  = (quizPhotoIndex + dir + GALLERY_TOTAL) % GALLERY_TOTAL;
+  _updateQuizPhoto();
+}
+
+function quizTouchStart(e) {
+  _quizTouchStartX = e.touches[0].clientX;
+}
+function quizTouchEnd(e) {
+  const dx = e.changedTouches[0].clientX - _quizTouchStartX;
+  if (Math.abs(dx) > 42) {
+    quizPhotoZoomed = false;
+    quizPhotoIndex  = (quizPhotoIndex + (dx < 0 ? 1 : -1) + GALLERY_TOTAL) % GALLERY_TOTAL;
+    _updateQuizPhoto();
+  }
+}
+
+// ---- Foto-Kachel: Doppeltipp-Zoom ----
+function quizPhotoTap(e) {
+  const now = Date.now();
+  if (now - _quizLastTap < 320) {
+    quizPhotoZoomed = !quizPhotoZoomed;
+    _updateQuizPhoto();
+  }
+  _quizLastTap = now;
+}
+
+function _updateQuizPhoto() {
+  const img  = document.getElementById('quizPhotoImg');
+  const lbl  = document.getElementById('quizPhotoLabel');
+  const hint = document.getElementById('quizZoomHint');
+  if (!img) return;
+
+  if (quizPhotoIndex === 0) {
+    // Slide 0: sauberes Pflanzenmodell
+    img.style.transform = quizPhotoZoomed ? 'scale(2.5) translateY(-8%)' : 'scale(1.0)';
+    img.style.filter    = '';
+    img.style.outline   = '';
+    if (lbl) lbl.textContent = 'Pflanzenmodell';
+  } else {
+    // Slides 1–3: eigene Aufnahmen
+    const photo = galleryPhotos[quizPhotoIndex - 1];
+    img.style.transform = quizPhotoZoomed ? 'scale(2.5) translateY(-8%)' : photo.transform;
+    img.style.filter    = 'saturate(1.22) contrast(1.07) brightness(0.96) drop-shadow(0 4px 10px rgba(0,0,0,0.22))';
+    img.style.outline   = '2.5px solid rgba(255,255,255,0.80)';
+    if (lbl) lbl.textContent = photo.label + ' · Eigenes Foto';
+  }
+  if (hint) hint.textContent = quizPhotoZoomed ? '× Verkleinern' : '⊕ Einzoomen';
+  document.querySelectorAll('.quiz-photo-dot').forEach((d, i) =>
+    d.classList.toggle('active', i === quizPhotoIndex));
+}
+
+// ---- Florin-Tipp ein-/ausklappen ----
+function toggleQuizFlorinHint() {
+  const tip = document.getElementById('quizFlorinTip');
+  if (tip) tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
+}
+
+// Extrahiert den wissenschaftlichen Namen aus Klammern:
+// "Hülsenfrüchtler (Fabaceae)" → "Fabaceae"
+function familyMatches(plantFamilyStr, scientificName) {
+  const m = plantFamilyStr.match(/\(([^)]+)\)/);
+  return m && m[1].trim() === scientificName.trim();
+}
+
+function _showQuizSuccess(opt) {
+  const c = document.getElementById('quizContent');
+  const p = plants[currentPlantForQuiz];
+  c.innerHTML = `
+    <div style="animation:popIn 0.35s ease">
+      <!-- Erfolgs-Header -->
+      <div style="text-align:center;background:rgba(232,245,233,0.72);
+                  border:1.5px solid rgba(76,175,80,0.28);border-radius:18px;
+                  padding:20px 14px 16px;margin-bottom:16px">
+        <div style="font-size:36px;margin-bottom:8px">🌿</div>
+        <div style="font-size:18px;font-weight:900;color:var(--green-dark);margin-bottom:4px">
+          Richtig bestimmt!
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5">
+          Du hast erkannt: <strong style="color:var(--ink)">${p.family}</strong>
+        </div>
+      </div>
+      <!-- Pflanzenbild + Name -->
+      <div style="text-align:center;margin-bottom:14px">
+        <img src="${p.plantImg}" alt="${p.name}"
+             style="width:72px;height:72px;object-fit:contain;
+                    filter:drop-shadow(0 4px 10px rgba(0,0,0,0.18));margin-bottom:8px">
+        <div style="font-size:15px;font-weight:800;color:var(--ink)">${p.name}</div>
+        <div style="font-size:12px;color:var(--muted);font-style:italic;
+                    font-family:'Lora',serif">${p.latin}</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);text-align:center;
+                  margin-bottom:10px;font-style:italic">
+        Pflanze wird ins Herbarium übertragen …
+      </div>
+    </div>`;
+  setTimeout(() => completeIdentification(currentPlantForQuiz), 1900);
+}
+
+function _showQuizRetry(opt) {
+  const c = document.getElementById('quizContent');
+  c.innerHTML = `
+    <div style="animation:popIn 0.3s ease">
+      <!-- Feedback-Box -->
+      <div style="background:rgba(255,248,225,0.82);border:1.5px solid rgba(205,133,63,0.35);
+                  border-radius:16px;padding:18px 16px;margin-bottom:16px">
+        <div style="font-size:16px;font-weight:900;color:var(--ink);margin-bottom:8px">
+          Noch nicht ganz … 🌱
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">
+          Die Pflanze gehört nicht zu den
+          <strong style="color:var(--ink)">${opt.label}</strong>.
+          Schau dir die Blütenmerkmale nochmal in Ruhe an und versuche es erneut!
+        </div>
+      </div>
+      <!-- Tipp aus Pflanzendaten -->
+      <div style="background:rgba(192,209,186,0.22);border-left:3px solid rgba(46,125,50,0.35);
+                  border-radius:0 12px 12px 0;padding:10px 13px;margin-bottom:16px">
+        <div style="font-size:10px;font-weight:800;color:var(--green-dark);
+                    text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px">
+          Hinweis
+        </div>
+        <div style="font-size:12px;color:var(--ink);line-height:1.55">
+          Blühzeit: <strong>${plants[currentPlantForQuiz].bloomTime}</strong> ·
+          Habitat: ${plants[currentPlantForQuiz].habitat}
+        </div>
+      </div>
+      <button class="btn-primary" style="width:100%"
+              onclick="quizState={node:'L1',path:[]};renderQuizPage()">
+        Nochmal versuchen →
+      </button>
+    </div>`;
+}
+
+function completeIdentification(id) {
+  const p = plants[id];
+  basket = basket.filter(x => x !== id);
+  if (!herbarium.includes(id)) herbarium.push(id);
+  plants[id].inHerbarium = true;
+  currentPlantForQuiz = basket[0] || null;
+  totalXP += p.xp;
+  updateBadge();
+  updateTopBar();
+  renderTodos();
+  renderPins();
+  // Neu freigeschaltete Trophäen anzeigen & Bestäuber starten
+  equipmentItems.forEach(item => {
+    if (item.isUnlocked() && !item._wasUnlocked) {
+      item._wasUnlocked = true;
+      setTimeout(() => showTrophyUnlock(item), 2400);
+    }
+  });
+  pollinatorDefs.forEach(def => {
+    if (def.isUnlocked() && !_pollinatorTimers[def.id]) _schedulePollinatorFlight(def);
+  });
+  launchConfetti();
+
+  // ── Erfolgs-Bildschirm ──────────────────────────────────────────────────
+  document.getElementById('quizContent').innerHTML = `
+    <div style="text-align:center;animation:popIn 0.4s ease;padding:16px 0">
+      <img src="${p.plantImg}" alt="${p.name}"
+           style="width:148px;height:148px;object-fit:contain;display:inline-block;
+                  filter:drop-shadow(0 8px 22px rgba(0,0,0,0.22));margin-bottom:12px">
+      <div style="font-size:22px;font-weight:900;color:var(--ink);margin-bottom:3px">
+        Wunderschön! 🎉
+      </div>
+      <div style="font-size:16px;font-weight:700;color:#2e7d32;margin-bottom:2px">${p.name}</div>
+      <div style="font-size:12px;color:var(--muted);font-style:italic;font-family:'Lora',serif;
+                  margin-bottom:14px">${p.latin}</div>
+      <div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:14px">
+        <div style="background:#e8f5e9;color:#2e7d32;border-radius:50px;padding:6px 16px;
+                    font-size:12px;font-weight:800">✓ Im Herbarium</div>
+        <div style="background:#fff9c4;color:#f57f17;border-radius:50px;padding:6px 16px;
+                    font-size:12px;font-weight:800">+${p.xp} XP</div>
+      </div>
+      <div class="lore-box" style="text-align:left;margin:0 0 16px">
+        <div style="font-size:11px;font-weight:800;color:#7d5a00;margin-bottom:4px;
+                    font-style:normal;font-family:'Nunito',sans-serif">Fun Fact</div>
+        <div style="font-size:12px;color:#5d4037;line-height:1.6">
+          ${p.lore.slice(0, 130)}…
+        </div>
+      </div>
+    </div>`;
+
+  // ── Nach Erfolgsanzeige: Quiz schließen → Steckbrief direkt zeigen ───────
+  setTimeout(() => {
+    closePanel('quiz');
+    showPlantPopup(id);
+  }, 2200);
+}
+
+// Öffnet das Herbarium und scrollt zur Karte der Pflanze (kein automatischer Popup).
+function openHerbariumAtPlant(id) {
+  _activatePanel('herbarium');
+  setTimeout(() => {
+    const card = document.querySelector(`.herb-card[data-id="${id}"]`);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.classList.add('herb-card-highlight');
+      setTimeout(() => card.classList.remove('herb-card-highlight'), 2200);
+    }
+  }, 400);
+}
+
+// ==================== HERBARIUM ====================
+function herbCard(id, inHerb) {
+  const p = plants[id];
+  const exists = !!p;
+  const locked = !exists || !inHerb;
+  return `<div class="herb-card ${locked ? 'locked' : ''}" data-id="${id}"
+               onclick="${!locked ? `showPlantPopup('${id}')` : ''}">
+    <div class="herb-emoji">${inHerb && exists
+      ? `<img src="${p.plantImg}" alt="${p.name}" class="herb-plant-img">`
+      : `<i data-lucide="lock" style="width:24px;height:24px;color:rgba(100,80,60,0.35)"></i>`
+    }</div>
+    <div class="herb-name">${inHerb && exists ? p.name : '???'}</div>
+  </div>`;
+}
+
+function renderHerbarium() {
+  // ---- Welten tab ----
+  const weltenEl = document.getElementById('herb-tab-welten');
+  if (weltenEl) {
+    weltenEl.innerHTML = worldGroups.map((group, gi) => {
+      const headerIcon = group.iconImg
+        ? `<img src="${group.iconImg}" alt="" style="width:20px;height:20px;object-fit:contain;opacity:0.9">`
+        : '';
+      const cards = group.plantIds.map(id => herbCard(id, herbarium.includes(id))).join('');
+      return `
+        <div style="font-size:13px;font-weight:800;color:${group.colorLabel};
+                    margin-bottom:9px;${gi > 0 ? 'margin-top:18px;' : ''}
+                    display:flex;align-items:center;gap:5px">
+          ${headerIcon} ${group.name}
+        </div>
+        <div class="herb-grid">${cards}</div>`;
+    }).join('');
+    lucide.createIcons();
+  }
+
+  // ---- Familien tab ----
+  const famEl = document.getElementById('herb-tab-familien');
+  if (!famEl) return;
+  const famMap = {};
+  herbarium.forEach(id => {
+    const p = plants[id];
+    if (!p) return;
+    if (!famMap[p.family]) famMap[p.family] = [];
+    famMap[p.family].push(id);
+  });
+  if (Object.keys(famMap).length === 0) {
+    famEl.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted);font-weight:600">
+      Noch keine Pflanzen bestimmt!
+    </div>`;
+  } else {
+    famEl.innerHTML = Object.entries(famMap).map(([fam, ids]) => `
+      <div style="margin-bottom:14px">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:5px">
+          <img src="assets/icons/Blatt.png" alt="" style="width:17px;height:17px;object-fit:contain;opacity:0.75">
+          ${fam}
+          <span style="color:var(--muted);font-weight:600">(${ids.length})</span>
+        </div>
+        <div class="herb-grid">
+          ${ids.map(id => {
+            const p = plants[id];
+            return `<div class="herb-card" onclick="showPlantPopup('${id}')">
+              <div class="herb-emoji"><img src="${p.plantImg}" alt="${p.name}" class="herb-plant-img"></div>
+              <div class="herb-name">${p.name}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`).join('');
+    lucide.createIcons();
+  }
+  updateTopBar();
+}
+
+function switchHerbTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('herb-tab-welten').style.display   = tab === 'welten'   ? 'block' : 'none';
+  document.getElementById('herb-tab-familien').style.display = tab === 'familien' ? 'block' : 'none';
+  document.getElementById('herb-tab-trophies').style.display = tab === 'trophies' ? 'block' : 'none';
+  if (tab === 'familien') renderHerbarium();
+  if (tab === 'trophies') renderTrophyTab();
+}
+
+// ==================== CHATBOT ====================
+const chatResponses = {
+  'pflanzenfamilie': 'Eine Pflanzenfamilie fasst Pflanzen mit ähnlichen Merkmalen zusammen – Blütenaufbau, Fruchttyp, Blattform. Rotklee gehört zu den Hülsenfrüchtlern (Fabaceae), das Gänseblümchen zu den Korbblütengewächsen (Asteraceae) 🌼',
+  'hahnenfuß':       'Der Kriechende Hahnenfuß (Ranunculus repens) hat glänzende, goldgelbe Blüten mit genau 5 Kronblättern. Er liebt feuchte Wiesen und Wegränder. 🌼',
+  'gänseblümchen':   'Das Gänseblümchen ist ein Korbblütler! Was wie eine Blüte aussieht, sind viele kleine Einzelblüten – außen weiße Zungenblüten, innen gelbe Röhrenblüten. 🌸',
+  'bestimmen':       'Beim Bestimmen zählst du: 1. Anzahl der Kronblätter, 2. Blattform und -stellung (gegenständig/wechselständig), 3. Standort und Jahreszeit. Diese drei Punkte verraten fast immer die Pflanzenfamilie! 🔬',
+  'kronblätter':     'Die Anzahl der Kronblätter ist ein Schlüsselmerkmal: Hahnenfußgewächse haben oft 5, Korbblütler gar keine – dafür einen Blütenkopf aus vielen Einzelblüten. 🌺',
+  'blühzeit':        'Die Blühzeit zeigt dir, wann eine Pflanze zu sehen ist. Rotklee blüht von Mai bis Oktober, das Gänseblümchen fast das ganze Jahr. Frühblüher findest du schon ab März! 📅',
+  'herbarium':       'Ein Herbarium ist eine Sammlung gepresster Pflanzen. In scavengerHunt sammelst du dein digitales Herbarium: fotografieren → Quiz bestimmen → eintragen. 📗',
+  'fortbildung':     'Fortbildungsaufträge sind kleine Lernaufgaben, die ich dir je nach Jahreszeit stelle. Zum Beispiel: Blattstellung beobachten oder Kronblätter zählen. Sie geben dir XP! 🌿',
+  'default':         'Interessante Frage! 🌿 Als allgemeinen Tipp: Blütenfarbe, Blattform und Standort sind die drei wichtigsten Bestimmungsmerkmale. Magst du deine Frage noch genauer formulieren?'
+};
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg   = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const messages = document.getElementById('chatMessages');
+  messages.innerHTML += `<div class="chat-bubble user">${msg}</div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  const key = Object.keys(chatResponses).find(k =>
+    msg.toLowerCase().includes(k.toLowerCase())
+  );
+  setTimeout(() => {
+    messages.innerHTML += `<div class="chat-bubble bot">${chatResponses[key || 'default']}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+  }, 600);
+}
+
+// ==================== CONFETTI ====================
+function launchConfetti() {
+  const colors = ['#4caf50','#f9a825','#e91e63','#1976d2','#ef6c00','#9c27b0','#00bcd4'];
+  for (let i = 0; i < 26; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${5 + Math.random() * 90}%;
+      background:${colors[Math.floor(Math.random() * colors.length)]};
+      animation-delay:${Math.random() * 0.65}s;
+      animation-duration:${2 + Math.random() * 1.2}s;
+      transform:rotate(${Math.random() * 360}deg);
+      border-radius:${Math.random() > 0.5 ? '50%' : '3px'};
+      width:${8 + Math.random() * 8}px;
+      height:${8 + Math.random() * 8}px;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+
+// ==================== WELTEN-PLANETEN-SYSTEM ====================
+// One world per season. Only 'summer' is active; others are greyed-out previews.
+// plants: list of plant IDs belonging to this world (cross-referenced with herbarium).
+
+const worldDefs = [
+  {
+    id:              'sommerblüher',
+    name:            'Sommerblüher',
+    iconImg:         'assets/icons/sun.png',
+    iconLucide:      null,
+    iconLucideColor: null,
+    bg:        'radial-gradient(circle at 36% 30%, #e6f2ea 0%, #c0d1ba 24%, #8aaa94 48%, #4e7060 72%, #22382c 100%)',
+    miniColor: 'radial-gradient(circle at 36% 32%, #e6f2ea 0%, #c0d1ba 30%, #8aaa94 62%, #22382c 100%)',
+    plants:    allSpringPlants,
+    active:    true
+  },
+  {
+    id:              'frühblüher',
+    name:            'Frühblüher',
+    iconImg:         'assets/icons/Fruehblueher.png',
+    iconLucide:      null,
+    iconLucideColor: null,
+    bg:        'radial-gradient(circle at 36% 30%, #d4f0a0 0%, #90c840 28%, #50901c 56%, #1e5008 100%)',
+    miniColor: 'radial-gradient(circle at 36% 32%, #d4f0a0 0%, #90c840 36%, #50901c 65%, #1e5008 100%)',
+    plants:    [],
+    active:    false
+  },
+  {
+    id:              'herbstblüher',
+    name:            'Herbstblüher',
+    iconImg:         'assets/icons/Herbstblueher.png',
+    iconLucide:      null,
+    iconLucideColor: null,
+    bg:        'radial-gradient(circle at 36% 30%, #f0c07a 0%, #d07030 30%, #9a4010 60%, #5a1e06 100%)',
+    miniColor: 'radial-gradient(circle at 36% 32%, #f0c07a 0%, #d07030 38%, #9a4010 68%, #5a1e06 100%)',
+    plants:    [],
+    active:    false
+  },
+  {
+    id:              'winterblüher',
+    name:            'Winterblüher',
+    iconImg:         'assets/icons/Winterblueher.png',
+    iconLucide:      null,
+    iconLucideColor: null,
+    bg:        'radial-gradient(circle at 36% 30%, #b8d8f0 0%, #6898c8 30%, #3060a0 60%, #102040 100%)',
+    miniColor: 'radial-gradient(circle at 36% 32%, #b8d8f0 0%, #6898c8 38%, #3060a0 68%, #102040 100%)',
+    plants:    [],
+    active:    false
+  }
+];
+
+function openWeltenOverlay() {
+  renderWeltenOverlay();
+  document.getElementById('weltenOverlay').classList.add('open');
+}
+
+function closeWeltenOverlay() {
+  document.getElementById('weltenOverlay').classList.remove('open');
+  // Hide any open season-info popup
+  const info = document.getElementById('weltenSeasonInfo');
+  if (info) info.style.display = 'none';
+}
+
+function renderWeltenOverlay() {
+  const world      = worldDefs.find(w => w.active);
+  const discovered = herbarium.filter(id => world.plants.includes(id));
+  const N          = world.plants.length;
+
+  // ---- Plants fixed on sphere surface, rotate with globe ----
+  // Varied radii + angles so plants look naturally scattered on the sphere.
+  // No counter-rotation → they tumble as the globe spins.
+  const ORBIT_CX = 110, ORBIT_CY = 110;
+  // Predefined positions (angle offset °, radius px, size px) for up to 8 plants
+  const slots = [
+    { angleDeg:  20, r: 78, size: 46 },
+    { angleDeg: 100, r: 68, size: 40 },
+    { angleDeg: 175, r: 80, size: 44 },
+    { angleDeg: 250, r: 72, size: 42 },
+    { angleDeg: 320, r: 60, size: 38 },
+    { angleDeg:  60, r: 55, size: 36 },
+    { angleDeg: 145, r: 50, size: 34 },
+    { angleDeg: 290, r: 85, size: 48 },
+  ];
+  const orbitItemsHtml = world.plants
+    .filter(id => discovered.includes(id))
+    .map((id, i) => {
+      const slot    = slots[i % slots.length];
+      const angle   = slot.angleDeg * Math.PI / 180;
+      const cx      = ORBIT_CX + slot.r * Math.cos(angle);
+      const cy      = ORBIT_CY + slot.r * Math.sin(angle);
+      const p       = plants[id];
+      const half    = slot.size / 2;
+      // Rotate so the plant's bottom always points toward globe centre
+      const initRot = slot.angleDeg + 90;
+      return `<img src="${p.plantImg}" alt="${p.name}" class="welten-orbit-plant"
+               style="left:${cx}px;top:${cy}px;width:${slot.size}px;height:${slot.size}px;
+                      margin-left:-${half}px;margin-top:-${half}px;
+                      transform-origin:center center;transform:rotate(${initRot}deg)">`;
+    }).join('');
+
+  // ---- Central icon – sun stays upright via counter-rotation ----
+  const coreHtml = world.iconImg
+    ? `<img src="${world.iconImg}" alt="${world.name}" class="welten-planet-core">`
+    : `<i data-lucide="${world.iconLucide}" class="welten-planet-core"
+          style="width:38px;height:38px;color:${world.iconLucideColor}"></i>`;
+
+  // ---- Inactive worlds – coloured orbs only, no icons yet ----
+  const inactiveHtml = worldDefs.filter(w => !w.active).map(w => `
+    <div class="welten-mini-world" onclick="showSeasonInfo('${w.id}')">
+      <div class="welten-mini-planet" style="background:${w.miniColor}"></div>
+      <div class="welten-mini-label">${w.name}</div>
+    </div>`).join('');
+
+  document.getElementById('weltenOverlayContent').innerHTML = `
+    <div class="welten-popup-title">Welten</div>
+    <div class="welten-active-section">
+      <div class="welten-orbit-ring">
+        <div class="welten-planet" style="background:${world.bg}"></div>
+        ${coreHtml}
+        ${orbitItemsHtml}
+      </div>
+      <div class="welten-world-name">${world.name}</div>
+    </div>
+    <div class="welten-inactive-section">
+      <div class="welten-inactive-label">Weitere Welten</div>
+      <div class="welten-inactive-row">${inactiveHtml}</div>
+    </div>
+  `;
+  lucide.createIcons();
+}
+
+function showSeasonInfo(id) {
+  const world = worldDefs.find(w => w.id === id);
+  if (!world) return;
+  const info = document.getElementById('weltenSeasonInfo');
+  if (!info) return;
+  info.innerHTML = `
+    <div class="welten-season-popup">
+      <div class="welten-season-popup-name">${world.name}</div>
+      <div class="welten-season-popup-text">
+        Diese Welt ist noch nicht verfügbar.<br>
+        Komm wieder, wenn der ${world.name} beginnt!
+      </div>
+      <button class="welten-season-popup-btn"
+              onclick="document.getElementById('weltenSeasonInfo').style.display='none'">
+        OK
+      </button>
+    </div>
+  `;
+  info.style.display = 'flex';
+}
+
+init();
+lucide.createIcons();
+</script>
+</div><!-- #phone-shell -->
+</body>
+</html>
