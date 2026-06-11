@@ -1,5 +1,9 @@
 # Prototyp: scavengerHunt (Ein botanisches Cozy Game)
 
+🌿 **[Live-Demo ansehen](https://botanicatbird.github.io/Prototyp/)**
+
+---
+
 ## 1. Projektbeschreibung & Atmosphäre
 scavengerHunt ist ein entspanntes, entschleunigtes Sammelspiel (inspiriert von der Ästhetik von *Tides: A Fishing Game* und dem Entdecker-Prinzip von *Pokémon Go*). Es richtet sich an Schüler der Mittelstufe sowie an naturinteressierte Menschen, mit dem primären Ziel, ein nachhaltiges Interesse für die Botanik zu wecken und die Faszination für die heimische Pflanzenwelt spürbar zu machen. Es gibt keinen Zeitdruck – der Fokus liegt auf dem gemütlichen Erkunden, dem spielerischen Entdecken und dem emotionalen Bezug zur Natur beim Vervollständigen des eigenen digitalen Herbariums.
 
