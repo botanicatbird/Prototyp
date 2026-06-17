@@ -192,19 +192,17 @@ L2B — Andere/komplexe Blütenform (5 Optionen)
 
 **Bilder** in `assets/quiz/`:
 
-| Datei | Verwendung | Status |
-|-------|-----------|--------|
-| `l1_fuenf.png` | L1 Option A (5+ Kronblätter) | Platzhalter |
-| `l1_kreuz.png` | L1 Option B (Kreuzblütler) | Platzhalter |
-| `l1_andere.png` | L1 Option C (Andere Form) | Platzhalter |
-| `l2a_ranunculaceae.png` | L2A Hahnenfußgewächse | Platzhalter |
-| `Rosengewaechse.png` | L2A Rosengewächse | ✅ |
-| `l2b_apiaceae.png` | L2B Doldenblütler | Platzhalter |
-| `Korbbluetler.png` | L2B Korbblütler | ✅ |
-| `l2b_fabaceae.png` | L2B Schmetterlingsblütler | Platzhalter |
-| `Lippenbluetler.png` | L2B Lippenblütler | ✅ |
+| Datei | Verwendung |
+|-------|-----------|
+| `Hahnenfussgewaechse.png` | L2A Hahnenfußgewächse |
+| `Rosengewaechse.png` | L2A Rosengewächse |
+| `Kreuzbluetler.png` | L1 Option B (Kreuzblütler) |
+| `Doldenbluetler.png` | L2B Doldenblütler |
+| `Korbbluetler.png` | L2B Korbblütler |
+| `Schmetterlingsbluetler.png` | L2B Schmetterlingsblütler |
+| `Lippenbluetler.png` | L2B Lippenblütler |
 
-Bei fehlendem Bild greift `onerror` auf ein Lucide-`image`-Icon zurück.
+L1 Option A (5 Kronblätter) zeigt `Hahnenfussgewaechse.png` und `Rosengewaechse.png` diagonal übereinander als Vorschau. L1 Option C (Andere Blütenform) und „Etwas ganz anderes" zeigen kein Bild bzw. ein `?`.
 
 ### 8.4 Florin-Hilfe-System
 
@@ -255,9 +253,10 @@ Fortbildungsaufträge sind geführte Lektionen, die Florin dem Spieler in einer 
 | Level | ID | Titel | Status |
 |-------|----|-------|--------|
 | 1 | `bluetenaufbau` | Blütenaufbau | ✅ vollständig implementiert |
-| 2 | `bluetenstaende` | Blütenstände | 🔒 noch nicht implementiert |
-| 3 | `blattstellungen` | Blattstellungen | 🔒 noch nicht implementiert |
-| 4 | `blattformen` | Blattformen | 🔒 noch nicht implementiert |
+| 2 | `bluetenformen` | Blütenformen | 🔒 noch nicht implementiert |
+| 3 | `bluetenstaende` | Blütenstände | 🔒 noch nicht implementiert |
+| 4 | `blattstellungen` | Blattstellungen | 🔒 noch nicht implementiert |
+| 5 | `blattformen` | Blattformen | 🔒 noch nicht implementiert |
 
 ---
 
