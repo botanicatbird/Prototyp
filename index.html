@@ -2216,7 +2216,7 @@ body {
           stroke="#d8cdb0" stroke-width="10" fill="none" stroke-linecap="round"/>
 
     <!-- Compass -->
-    <g transform="translate(424,76)">
+    <g transform="translate(72,76)">
       <circle r="22" fill="rgba(255,250,240,0.78)"/>
       <text x="0" y="-9"  font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">N</text>
       <text x="0" y="17"  font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">S</text>
@@ -2348,7 +2348,7 @@ body {
 <div class="panel-overlay" id="panel-lernsession" onclick="onOverlayClick(event,'lernsession')">
   <div class="panel-card">
     <button class="panel-close-btn" onclick="closePanel('lernsession')">✕</button>
-    <div class="panel-title"><img src="assets/icons/Mikroskop.png" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> Lektion</div>
+    <div class="panel-title">Lektion</div>
     <div id="lernsessionContent"></div>
   </div>
 </div>
@@ -2357,7 +2357,7 @@ body {
 <div class="panel-overlay" id="panel-chatbot" onclick="onOverlayClick(event,'chatbot')">
   <div class="panel-card">
     <button class="panel-close-btn" onclick="closePanel('chatbot')">✕</button>
-    <div class="panel-title">🌿 Florin</div>
+    <div class="panel-title"><img src="assets/Gardener_head.png" alt="Florin" style="width:58px;height:58px;object-fit:contain;vertical-align:middle;margin-right:7px"> Florin</div>
 
     <!-- Fortbildungsaufträge: nur sichtbar wenn aktive Aufgaben vorhanden – wird per JS befüllt -->
     <div id="florinTaskSection" style="display:none"></div>
@@ -2381,7 +2381,7 @@ body {
 <div class="panel-overlay" id="panel-quiz">
   <div class="panel-card">
     <button class="panel-close-btn" onclick="closePanel('quiz')">✕</button>
-    <div class="panel-title"><img src="assets/icons/Mikroskop.png" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> Bestimmungsschlüssel</div>
+    <div class="panel-title">Bestimmungsschlüssel</div>
     <div id="quizContent"></div>
   </div>
 </div>
@@ -2946,15 +2946,24 @@ const fortbildungLessons = [
   {
     id:        'bluetenaufbau',
     level:     1,
-    title:     'Blütenformen & Blütenaufbau',
+    title:     'Blütenaufbau',
     desc:      'Lerne die Teile einer Blüte kennen – Kronblätter, Kelchblätter, Staubblätter – und ordne sie per Drag & Drop an die richtige Stelle.',
     xp:        15,
-    type:      'puzzle',   // interaktives Drag-&-Drop-Puzzle (Assets ausstehend)
+    type:      'puzzle',
+    completed: false,
+  },
+  {
+    id:        'bluetenformen',
+    level:     2,
+    title:     'Blütenformen',
+    desc:      'Von Röhren- bis Schmetterlingsblüte: Lerne die wichtigsten Blütenformen kennen und was sie über die Pflanzenfamilie verraten.',
+    xp:        15,
+    type:      'lesson',
     completed: false,
   },
   {
     id:        'bluetenstaende',
-    level:     2,
+    level:     3,
     title:     'Blütenstände',
     desc:      'Wie ordnen sich Blüten entlang eines Stängels an? Lerne Traube, Dolde, Ähre und Co. zu unterscheiden.',
     xp:        15,
@@ -2963,7 +2972,7 @@ const fortbildungLessons = [
   },
   {
     id:        'blattstellungen',
-    level:     3,
+    level:     4,
     title:     'Blattstellungen',
     desc:      'Gegenständig, wechselständig, quirlständig – die Stellung der Blätter verrät dir oft schon die Pflanzenfamilie.',
     xp:        15,
@@ -2972,7 +2981,7 @@ const fortbildungLessons = [
   },
   {
     id:        'blattformen',
-    level:     4,
+    level:     5,
     title:     'Blattformen',
     desc:      'Von lanzettlich bis herzförmig: Lerne die Formensprache der Blätter zu lesen.',
     xp:        15,
@@ -2996,7 +3005,6 @@ function renderFlorinTasks() {
   }
   section.innerHTML = `
     <div class="section-label" style="margin-bottom:9px;display:flex;align-items:center;gap:5px">
-      <img src="assets/icons/Mikroskop.png" alt="" style="width:18px;height:18px;object-fit:contain;opacity:0.7">
       Aktuelle Lektion
     </div>
     <div class="fortbild-card fortbild-card--active" onclick="openLernSession('${active.id}')">
@@ -3024,7 +3032,7 @@ function updateFlorinBubble() {
   if (active) {
     // Aktiver Auftrag: immer anzeigen
     bubble.style.display = '';
-    bubble.textContent   = '🔬 Neue Lektion wartet!';
+    bubble.innerHTML     = 'Ich habe ein paar<br>nützliche Infos für dich';
   } else if (currentLevel <= 2) {
     // Level 1–2, kein Auftrag: Bubble komplett ausblenden
     bubble.style.display = 'none';
