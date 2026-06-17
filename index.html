@@ -2102,7 +2102,7 @@ body {
 <div class="panel-overlay" id="panel-todos" onclick="onOverlayClick(event,'todos')">
   <div class="panel-card">
     <button class="panel-close-btn" onclick="closePanel('todos')">✕</button>
-    <div class="panel-title"><img src="assets/icons/ToDoListe.png" alt="" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:7px"> To-Dos</div>
+    <div class="panel-title"><img src="assets/icons/ToDoListe.png" alt="" style="width:42px;height:42px;object-fit:contain;vertical-align:middle;margin-right:7px"> To-Dos</div>
     <div id="todoContent"></div>
   </div>
 </div>
@@ -3501,36 +3501,50 @@ function renderBasket() {
 // ==================== TO-DOS ====================
 const todoData = [
   {
-    type:'Suchauftrag', xp:2,
-    desc:'Schalte eine neue Pflanzenfamilie frei',
-    id:'find-family',
+    // Sammelauftrag: 3 Lippenblütler ins Herbarium aufnehmen
+    type: 'Sammelauftrag', xp: 5,
+    desc: 'Sammle 3 Lippenblütler',
+    icon: 'assets/quiz/Lippenbluetler.png',
+    isDone: () => ['gefleckte_taubnessel','goldnessel','weisse_taubnessel'].filter(id => herbarium.includes(id)).length >= 3
+  },
+  {
+    // Forscherauftrag: neue Pflanzenfamilie durch Bestimmen freischalten
+    type: 'Forscherauftrag', xp: 3,
+    desc: 'Schalte eine neue Pflanzenfamilie frei',
+    icon: 'assets/icons/Camera.png',
     isDone: () => [...new Set(herbarium.map(i => plants[i].family))].length >= 2
   },
   {
-    type:'Lippenblütler', xp:3,
-    desc:'Finde eine Taubnessel',
-    tag:'Blütezeit: April – Oktober',
-    id:'gefleckte_taubnessel',
-    isDone: () => herbarium.includes('gefleckte_taubnessel')
+    // Fortbildungsauftrag: Florins erste Lektion abschließen
+    type: 'Fortbildungsauftrag', xp: 4,
+    desc: 'Absolviere Florins Lektion zum Blütenaufbau',
+    isDone: () => fortbildungLessons.find(l => l.id === 'bluetenaufbau')?.completed === true
   },
   {
-    type:'Korbblütler', xp:2,
-    desc:'Bestimme das Gänseblümchen',
-    tag:'Blütezeit: März – November',
-    id:'gaenseblumchen',
-    isDone: () => herbarium.includes('gaenseblumchen')
+    // Backup-Auftrag: erscheint, sobald einer der drei oberen erledigt ist
+    type: 'Suchauftrag', xp: 2,
+    desc: 'Finde eine Gefleckte Taubnessel',
+    tag: 'Blütezeit: April – Oktober',
+    id: 'gefleckte_taubnessel',
+    isDone: () => herbarium.includes('gefleckte_taubnessel')
   },
 ];
 
 function _todoIconHtml(t) {
-  // Fortbildungsauftrag → Florin-Kopf (kreisförmig gecroppt)
+  // Fortbildungsauftrag → Florin-Avatar (kreisförmig gecroppt, Kopf zentriert)
   if (t.type === 'Fortbildungsauftrag') {
     return `<div style="width:38px;height:38px;border-radius:50%;overflow:hidden;
                         border:1.5px solid rgba(139,104,72,0.22);
                         background:rgba(255,248,228,0.85);flex-shrink:0">
       <img src="assets/Gardener.png"
-           style="width:95px;height:auto;margin-left:-28px;margin-top:-4px;display:block">
+           style="width:72px;height:auto;margin-left:-17px;margin-top:2px;display:block">
     </div>`;
+  }
+  // Explizites Icon-Feld (z. B. Quiz-Asset oder Camera)
+  if (t.icon) {
+    return `<img src="${t.icon}"
+                 style="width:52px;height:52px;object-fit:contain;flex-shrink:0;
+                        filter:drop-shadow(0 2px 5px rgba(0,0,0,0.16))">`;
   }
   // Pflanzenbezogen → Plant-PNG wenn id in plants{} vorhanden
   if (t.id && plants[t.id] && plants[t.id].plantImg) {
@@ -3538,17 +3552,21 @@ function _todoIconHtml(t) {
                  style="width:42px;height:42px;object-fit:contain;flex-shrink:0;
                         filter:drop-shadow(0 2px 5px rgba(0,0,0,0.16))">`;
   }
-  // Suchauftrag (allgemein) → Camera.png
+  // Fallback → Camera.png
   return `<img src="assets/icons/Camera.png"
                style="width:34px;height:34px;object-fit:contain;flex-shrink:0;opacity:0.85">`;
 }
 
 function renderTodos() {
-  // Offene zuerst, dann erledigte – max 4 anzeigen
+  // Backup-Auftrag (Index 3) nur anzeigen, wenn mind. einer der drei Hauptaufträge erledigt ist
+  const mainDone = todoData.slice(0, 3).some(t => t.isDone());
+  const visible  = mainDone ? todoData : todoData.slice(0, 3);
+
+  // Offene zuerst, dann erledigte
   const sorted = [
-    ...todoData.filter(t => !t.isDone()),
-    ...todoData.filter(t =>  t.isDone())
-  ].slice(0, 4);
+    ...visible.filter(t => !t.isDone()),
+    ...visible.filter(t =>  t.isDone())
+  ];
 
   document.getElementById('todoContent').innerHTML = sorted.map(t => {
     const done = t.isDone();
