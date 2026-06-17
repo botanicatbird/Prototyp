@@ -1169,6 +1169,223 @@ body {
 .lernsession-complete-btn:hover  { transform: scale(1.02); }
 .lernsession-complete-btn:active { transform: scale(0.97); }
 
+/* ===================== BLÜTENAUFBAU PUZZLE OVERLAY ===================== */
+
+#puzzleOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--cream);
+  border: 3px solid var(--brown-border);
+  display: none;
+  flex-direction: column;
+  font-family: 'Nunito', sans-serif;
+  overflow: hidden;
+}
+#puzzleOverlay.open { display: flex; }
+
+#puzzleCloseBtn {
+  position: absolute;
+  top: 12px; right: 14px;
+  background: rgba(120,90,40,0.12);
+  border: none; border-radius: 50%;
+  width: 32px; height: 32px;
+  font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); z-index: 10;
+  transition: background 0.15s;
+}
+#puzzleCloseBtn:hover { background: rgba(120,90,40,0.22); }
+
+/* Header: Florin left, speech bubble right */
+.puzzle-header {
+  position: relative;
+  padding: 50px 14px 14px 14px;
+  flex-shrink: 0;
+  min-height: 110px;
+}
+
+.puzzle-florin-avatar {
+  position: absolute;
+  bottom: -62px;
+  left: 12px;
+  width: 90px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 7px rgba(0,0,0,0.18));
+  z-index: 5;
+}
+
+.puzzle-bubble {
+  width: 100%;
+  background: rgba(255,250,235,0.97);
+  border: 1.5px solid rgba(180,150,90,0.30);
+  border-radius: 14px 14px 14px 4px;
+  padding: 11px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.6;
+  font-family: 'Nunito', sans-serif;
+  font-style: normal;
+  box-shadow: 0 3px 12px rgba(50,40,20,0.10);
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* Main puzzle canvas */
+.puzzle-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Schablone centered in puzzle area */
+.puzzle-schablone-wrap {
+  position: absolute;
+  left: 50%;
+  top: 110px;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 240px;
+  background: var(--beige-card);
+  border: 2px solid rgba(139,104,72,0.28);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 14px rgba(50,40,20,0.10);
+  transition: box-shadow 0.2s;
+}
+.puzzle-schablone-wrap.drop-active {
+  box-shadow: 0 0 0 3px rgba(46,125,50,0.45), 0 3px 14px rgba(50,40,20,0.10);
+}
+.puzzle-schablone-img {
+  width: 200px;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.5s ease;
+}
+
+/* Solution image overlays the schablone wrap */
+.puzzle-solution-img {
+  position: absolute;
+  left: 50%;
+  top: 110px;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+  border-radius: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease;
+  z-index: 20;
+}
+.puzzle-solution-img.visible { opacity: 1; }
+
+/* Draggable piece */
+.puzzle-piece {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 0.28s ease, filter 0.28s ease;
+  z-index: 10;
+}
+.puzzle-piece img {
+  width: 100px;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 7px rgba(0,0,0,0.18));
+  display: block;
+}
+/* Individuelle Größen für kleinere Pieces */
+#pz-Stempel img      { width: 120px; }
+#pz-Staubblaetter img{ width: 124px; }
+#pz-Kelchblatt1 img,
+#pz-Kelchblatt2 img,
+#pz-Kelchblatt3 img  { width: 112px; }
+
+/* Active: kein extra Glow (wäre zu viel Hilfe) */
+.puzzle-piece.active-piece img {
+  filter: drop-shadow(0 3px 7px rgba(0,0,0,0.18));
+}
+/* Blocked: graustufen + kein Cursor, aber voll sichtbar */
+.puzzle-piece.blocked-piece {
+  cursor: default;
+  pointer-events: none;
+}
+.puzzle-piece.blocked-piece img {
+  filter: grayscale(0.55) drop-shadow(0 3px 7px rgba(0,0,0,0.12));
+}
+/* Placed: ausblenden, Schablone zeigt das Teil bereits */
+.puzzle-piece.placed {
+  pointer-events: none;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease;
+}
+
+/* Floating clone while dragging */
+.puzzle-dragging {
+  position: fixed;
+  pointer-events: none;
+  z-index: 500;
+  transform: scale(1.14);
+  transform-origin: center center;
+}
+.puzzle-dragging img {
+  width: 100px;
+  height: auto;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.30));
+  display: block;
+}
+
+/* Bottom progress dots + complete button */
+.puzzle-progress {
+  padding: 10px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.puzzle-prog-dots {
+  display: flex;
+  gap: 9px;
+  justify-content: center;
+}
+.puzzle-prog-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(139,104,72,0.22);
+  transition: background 0.3s;
+}
+.puzzle-prog-dot.done    { background: var(--green-dark); }
+.puzzle-prog-dot.current { background: var(--orange); }
+.puzzle-complete-btn {
+  width: 100%;
+  max-width: 320px;
+  background: var(--green-dark);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: none;
+  transition: transform 0.12s;
+}
+.puzzle-complete-btn.visible { display: block; animation: fadeInUp 0.4s ease; }
+.puzzle-complete-btn:hover  { transform: scale(1.02); }
+.puzzle-complete-btn:active { transform: scale(0.97); }
+
 /* ===================== LORE BOX ===================== */
 .lore-box {
   background: linear-gradient(135deg, #fdf6e3, #fef9f0);
@@ -2201,6 +2418,31 @@ body {
   <div class="cam-bottombar">
     <button class="shutter-btn" id="shutterBtn" onclick="triggerScan()">
       <img src="assets/icons/Camera.png" alt="Fotografieren" class="shutter-icon">
+    </button>
+  </div>
+</div>
+
+<!-- ========================= BLÜTENAUFBAU PUZZLE ========================= -->
+<div id="puzzleOverlay">
+  <button id="puzzleCloseBtn" onclick="closePuzzle()">✕</button>
+  <div class="puzzle-header">
+    <div class="puzzle-bubble" id="puzzleBubble"></div>
+    <img src="assets/Gardener.png" class="puzzle-florin-avatar" alt="Florin" draggable="false">
+  </div>
+  <div class="puzzle-area" id="puzzleArea">
+    <div class="puzzle-schablone-wrap" id="puzzleDropZone">
+      <img src="assets/Fortbildung/Bluetenaufbau_Schablone1.png"
+           class="puzzle-schablone-img" id="puzzleSchablone" draggable="false" alt="Blütenschablone">
+    </div>
+    <img src="assets/Fortbildung/Bluetenaufbau_Loesung.png"
+         class="puzzle-solution-img" id="puzzleSolution" draggable="false" alt="Lösung">
+    <!-- Draggable pieces injected by JS -->
+  </div>
+  <div class="puzzle-progress" id="puzzleProgress">
+    <div class="puzzle-prog-dots" id="puzzleProgDots"></div>
+    <button class="puzzle-complete-btn" id="puzzleCompleteBtn"
+            onclick="completeLernSession('bluetenaufbau'); closePuzzle();">
+      Lektion abschließen ✓
     </button>
   </div>
 </div>
@@ -3404,6 +3646,14 @@ function spawnFloatingPlant(plantImg) {
 function openLernSession(id) {
   const lesson = fortbildungLessons.find(l => l.id === id);
   if (!lesson) return;
+
+  // Blütenaufbau hat ein eigenes Vollbild-Puzzle
+  if (id === 'bluetenaufbau') {
+    closePanel('chatbot');
+    openBluetenPuzzle();
+    return;
+  }
+
   const content = document.getElementById('lernsessionContent');
   if (content) content.innerHTML = _buildLernSessionHTML(lesson);
   _activatePanel('lernsession');
@@ -3452,6 +3702,208 @@ function completeLernSession(id) {
   updateFlorinBubble();
   renderFlorinTasks();
   renderTodos();
+}
+
+// ==================== BLÜTENAUFBAU PUZZLE ====================
+
+// Florin erklärt jeden Blütenteil Schritt für Schritt.
+// Nur die aktuell beschriebenen Teile können gezogen werden.
+// Jeder Schritt hat genau eine Schablone, die nach Abschluss eingeblendet wird.
+const puzzleSteps = [
+  {
+    id: 'stempel',
+    pieces: ['Stempel'],
+    schablone: 'assets/Fortbildung/Bluetenaufbau_Schablone2.png',
+    tip: 'Der Stempel ist das weibliche Organ der Blüte. Er besteht aus drei Teilen: unten der Fruchtknoten – die "Babystube", in der später Samen entstehen. Darüber der Griffel als Stiel. Ganz oben die klebrige Narbe, die den Pollen auffängt. Zieh ihn in die Blüte!'
+  },
+  {
+    id: 'staubblaetter',
+    pieces: ['Staubblaetter'],
+    schablone: 'assets/Fortbildung/Bluetenaufbau_Schablone3.png',
+    tip: 'Jetzt kommen die Staubblätter – die männlichen Organe der Blüte. An ihrer Spitze sitzen die Staubbeutel, prall gefüllt mit Pollen. Zieh sie in die Blüte!'
+  },
+  {
+    id: 'kronblaetter',
+    pieces: ['Kronblatt1', 'Kronblatt2', 'Kronblatt3'],
+    schablone: 'assets/Fortbildung/Bluetenaufbau_Schablone4.png',
+    tip: 'Die Kronblätter – auch Petalen genannt – sind bunt und auffällig. Sie locken Bienen und Schmetterlinge zur Bestäubung an. Zieh alle drei an ihren Platz!'
+  },
+  {
+    id: 'kelchblaetter',
+    pieces: ['Kelchblatt1', 'Kelchblatt2', 'Kelchblatt3'],
+    schablone: 'assets/Fortbildung/Bluetenaufbau_Loesung.png',
+    tip: 'Fast geschafft! Die Kelchblätter bilden den grünen äußersten Kreis der Blüte. Als Knospe haben sie die ganze Blüte geschützt – zieh alle drei hinein!'
+  }
+];
+
+// Startpositionen rund um die Schablone (240×240 px, zentriert bei x=195, top:110).
+// Schablone-Bereich: x 75–315, y 110–350.
+const puzzlePiecePositions = {
+  'Kelchblatt1':  { left:   0, top:  55 },  // oben links
+  'Stempel':      { left: 132, top:   5 },  // oben mitte
+  'Staubblaetter':{ left: 258, top:   5 },  // oben rechts (258+124=382 ✓)
+  'Kelchblatt2':  { left:   0, top: 175 },  // links neben Schablone
+  'Kelchblatt3':  { left: 272, top: 175 },  // rechts neben Schablone (272+112=384 ✓)
+  'Kronblatt1':   { left:  22, top: 392 },  // unten links
+  'Kronblatt2':   { left: 140, top: 418 },  // unten mitte
+  'Kronblatt3':   { left: 255, top: 392 },  // unten rechts (255+100=355 ✓)
+};
+
+let _pzStep   = 0;           // aktueller Schritt-Index
+let _pzPlaced = new Set();   // IDs bereits platzierten Teile
+let _pzDragEl = null;        // schwebender Klon während des Ziehens
+let _pzDragId = null;        // ID des gezogenen Teils
+
+function openBluetenPuzzle() {
+  _pzStep   = 0;
+  _pzPlaced = new Set();
+
+  // Alte Teile entfernen und neu erzeugen
+  const area = document.getElementById('puzzleArea');
+  area.querySelectorAll('.puzzle-piece').forEach(el => el.remove());
+
+  Object.entries(puzzlePiecePositions).forEach(([id, pos]) => {
+    const el = document.createElement('div');
+    el.className = 'puzzle-piece';
+    el.id = 'pz-' + id;
+    el.style.left = pos.left + 'px';
+    el.style.top  = pos.top  + 'px';
+    el.innerHTML  = `<img src="assets/Fortbildung/${id}.png" draggable="false" alt="${id}">`;
+    el.addEventListener('pointerdown', _pzPointerDown);
+    area.appendChild(el);
+  });
+
+  // Schablone auf Anfangszustand zurücksetzen
+  document.getElementById('puzzleSchablone').src = 'assets/Fortbildung/Bluetenaufbau_Schablone1.png';
+  document.getElementById('puzzleCompleteBtn').classList.remove('visible');
+
+  _pzUpdateStep();
+  document.getElementById('puzzleOverlay').classList.add('open');
+}
+
+function closePuzzle() {
+  document.getElementById('puzzleOverlay').classList.remove('open');
+  if (_pzDragEl) { _pzDragEl.remove(); _pzDragEl = null; }
+}
+
+// Aktualisiert Sprechblase, Teile-Zustände und Fortschritts-Punkte
+function _pzUpdateStep() {
+  const step = puzzleSteps[_pzStep];
+
+  document.getElementById('puzzleBubble').textContent = step.tip;
+
+  document.querySelectorAll('.puzzle-piece').forEach(el => {
+    const id = el.id.replace('pz-', '');
+    if (_pzPlaced.has(id)) {
+      el.className = 'puzzle-piece placed';
+    } else if (step.pieces.includes(id)) {
+      el.className = 'puzzle-piece active-piece';
+    } else {
+      el.className = 'puzzle-piece blocked-piece';
+    }
+  });
+
+  const dots = document.getElementById('puzzleProgDots');
+  dots.innerHTML = puzzleSteps.map((_, i) => {
+    let cls = 'puzzle-prog-dot';
+    if (i < _pzStep)      cls += ' done';
+    else if (i === _pzStep) cls += ' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+}
+
+function _pzPointerDown(e) {
+  const piece = e.currentTarget;
+  if (piece.classList.contains('blocked-piece') || piece.classList.contains('placed')) return;
+  e.preventDefault();
+
+  _pzDragId = piece.id.replace('pz-', '');
+  const rect = piece.getBoundingClientRect();
+
+  // Klon erzeugen, der dem Finger / der Maus folgt
+  _pzDragEl = document.createElement('div');
+  _pzDragEl.className = 'puzzle-dragging';
+  _pzDragEl.innerHTML = `<img src="assets/Fortbildung/${_pzDragId}.png" draggable="false" alt="">`;
+  _pzDragEl.style.left = (rect.left) + 'px';
+  _pzDragEl.style.top  = (rect.top)  + 'px';
+  document.body.appendChild(_pzDragEl);
+
+  piece.style.opacity = '0'; // Original während des Ziehens ausblenden
+
+  document.addEventListener('pointermove', _pzPointerMove, { passive: false });
+  document.addEventListener('pointerup',   _pzPointerUp);
+}
+
+function _pzPointerMove(e) {
+  if (!_pzDragEl) return;
+  e.preventDefault();
+  // Klon mittig unter Zeiger / Finger
+  _pzDragEl.style.left = (e.clientX - 45) + 'px';
+  _pzDragEl.style.top  = (e.clientY - 45) + 'px';
+
+  // Dropzone hervorheben wenn Zeiger drüber ist
+  const dz   = document.getElementById('puzzleDropZone').getBoundingClientRect();
+  const over = e.clientX > dz.left && e.clientX < dz.right &&
+               e.clientY > dz.top  && e.clientY < dz.bottom;
+  document.getElementById('puzzleDropZone').classList.toggle('drop-active', over);
+}
+
+function _pzPointerUp(e) {
+  document.removeEventListener('pointermove', _pzPointerMove);
+  document.removeEventListener('pointerup',   _pzPointerUp);
+  if (!_pzDragEl) return;
+
+  _pzDragEl.remove();
+  _pzDragEl = null;
+  document.getElementById('puzzleDropZone').classList.remove('drop-active');
+
+  const dz      = document.getElementById('puzzleDropZone').getBoundingClientRect();
+  const dropped = e.clientX > dz.left && e.clientX < dz.right &&
+                  e.clientY > dz.top  && e.clientY < dz.bottom;
+  const piece   = document.getElementById('pz-' + _pzDragId);
+
+  if (dropped) {
+    _pzPlaced.add(_pzDragId);
+    // Teil ausblenden – die neue Schablone zeigt ihn bereits platziert
+    if (piece) piece.className = 'puzzle-piece placed';
+
+    const step = puzzleSteps[_pzStep];
+    const allPlaced = step.pieces.every(id => _pzPlaced.has(id));
+
+    if (allPlaced) {
+      // Schablone zur nächsten Stufe wechseln
+      setTimeout(() => {
+        document.getElementById('puzzleSchablone').src = step.schablone;
+        if (_pzStep < puzzleSteps.length - 1) {
+          _pzStep++;
+          _pzUpdateStep();
+        } else {
+          _pzShowSolution();
+        }
+      }, 400);
+    } else {
+      _pzUpdateStep();
+    }
+  } else {
+    if (piece) piece.style.opacity = '';
+  }
+}
+
+function _pzShowSolution() {
+  // Alle Fortschritts-Punkte grün
+  document.getElementById('puzzleProgDots').innerHTML =
+    puzzleSteps.map(() => `<div class="puzzle-prog-dot done"></div>`).join('');
+
+  // Florin feiert – die Schablone ist jetzt bereits die vollständige Loesung.png
+  document.getElementById('puzzleBubble').textContent =
+    'Perfekt! Du kennst jetzt alle Teile einer Blüte: Kelchblätter, Kronblätter, Staubblätter und den Stempel. Sehr gut gemacht!';
+
+  launchConfetti();
+
+  // Abschluss-Button nach kurzer Pause einblenden
+  setTimeout(() => {
+    document.getElementById('puzzleCompleteBtn').classList.add('visible');
+  }, 1800);
 }
 
 // ==================== BASKET ====================
