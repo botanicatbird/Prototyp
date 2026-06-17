@@ -218,7 +218,7 @@ Jeder `quizTree`-Knoten hat ein `florinTip`-Feld. Der Tipp ist **nicht** automat
 
 `_showQuizRetry()` zeigt:
 - Freundliche Fehlermeldung: „Noch nicht ganz … 🌱" mit Erklärung welche Familie es *nicht* ist
-- Grüner Tipp-Kasten mit Blühzeit + Habitat der aktuellen Pflanze
+- Grüner Tipp-Kasten mit Blütezeit + Habitat der aktuellen Pflanze
 - „Nochmal versuchen →"-Button → `quizState = { node:'L1', path:[] }` → `renderQuizPage()`
 
 Kein Game Over, kein XP-Verlust. Der Baum beginnt immer von Stufe 1 neu.
@@ -337,7 +337,7 @@ Scrollbar: 4 px, dezent beige-braun (`scrollbar-width: thin`).
 | 3 | Eigenes Foto – Gesamtaufnahme | `scale(1.0)` + `.gallery-img--photo` |
 
 `.gallery-img--photo` = `saturate(1.22) contrast(1.07) brightness(0.96)` + weißer Outline-Rahmen (Snapshot-Look). `GALLERY_TOTAL = 4` steuert den Modulo in `galleryMove()` und `quizPhotoNav()`. Die Quiz-Foto-Kachel verwendet dieselbe 4-Slide-Struktur (Modell + `galleryPhotos[0–2]` für Foto-Transforms).
-- Steckbrief: Name, lateinischer Name, Familie, Blühzeit, Habitat, Fun Facts
+- Steckbrief: Name, lateinischer Name, Familie, Blütezeit, Habitat, Fun Facts
 
 ---
 
