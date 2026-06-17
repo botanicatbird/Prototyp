@@ -248,48 +248,54 @@ Nach korrekter Bestimmung läuft folgender Ablauf:
 ## 9. Fortbildungsaufträge – Lern-Sequenz
 
 ### Konzept
-Fortbildungsaufträge sind geführte Lektionen, die Florin dem Spieler in einer strikten Reihenfolge anbietet. Es ist immer **genau eine Lektion** gleichzeitig als anklickbares Element aktiv. Eine neue Lektion wird erst freigeschaltet, wenn die vorherige abgeschlossen wurde.
+Fortbildungsaufträge sind geführte Lektionen, die Florin dem Spieler in einer strikten Reihenfolge anbietet. Es ist immer **genau eine Lektion** gleichzeitig aktiv. Eine neue Lektion wird erst freigeschaltet, wenn die vorherige abgeschlossen wurde.
 
-### Reihenfolge
+### Stand der Lektionen
 
-| Level | ID | Titel | Typ |
-|-------|----|-------|-----|
-| 1 | `bluetenaufbau` | Blütenformen & Blütenaufbau | Drag & Drop Puzzle |
-| 2 | `bluetenstaende` | Blütenstände | Lektion (TBD) |
-| 3 | `blattstellungen` | Blattstellungen | Lektion (TBD) |
-| 4 | `blattformen` | Blattformen | Lektion (TBD) |
+| Level | ID | Titel | Status |
+|-------|----|-------|--------|
+| 1 | `bluetenaufbau` | Blütenaufbau | ✅ vollständig implementiert |
+| 2 | `bluetenstaende` | Blütenstände | 🔒 noch nicht implementiert |
+| 3 | `blattstellungen` | Blattstellungen | 🔒 noch nicht implementiert |
+| 4 | `blattformen` | Blattformen | 🔒 noch nicht implementiert |
 
-### Datenstruktur (`fortbildungLessons[]`)
-```javascript
-{
-  id:        'bluetenaufbau',
-  level:     1,
-  title:     'Blütenformen & Blütenaufbau',
-  desc:      '…',
-  xp:        15,
-  type:      'puzzle' | 'lesson',
-  completed: false,   // wird zur Laufzeit auf true gesetzt
-}
-```
-`getActiveFortbildung()` gibt die erste Lektion mit `completed: false` zurück.
+---
 
-### Lern-Session Panel (`#panel-lernsession`)
-- Öffnet sich beim Klick auf die Lektion-Karte in Florins Chat-Panel via `openLernSession(id)`
-- Zeigt: Level-Badge, Titel, Beschreibung, Inhaltsbereich (Puzzle/Lektion), „Lektion abschließen"-Button
-- `completeLernSession(id)` setzt `lesson.completed = true`, addiert XP, schließt das Panel, zeigt kurzen Toast und aktualisiert Bubble + Aufgabenliste
+### Lektion 1: Blütenaufbau (✅ spielbar)
 
-### Blütenaufbau-Puzzle (Level 1) – Platzhalter
-- **Typ:** interaktives Drag & Drop
-- **Aufgabe:** Kronblätter, Kelchblätter und Staubblätter per Drag & Drop an die richtige Position einer Blütengrafik ziehen
-- **Assets ausstehend:** PNG-Grafiken der einzelnen Blütenteile müssen noch bereitgestellt werden
-- Bis dahin zeigt das Panel einen Platzhalter mit Hinweis
+Der Einstieg erfolgt über Florins Chat-Panel → Lektion-Karte → „Lektion starten". Das Puzzle öffnet sich als Vollbild-Overlay (`#puzzleOverlay`) über der gesamten App.
 
-### Abschluss-Workflow
+**Ablauf:** Das Puzzle ist in 4 Schritte gegliedert. Pro Schritt muss der Nutzer das richtige Blütenteil per Drag & Drop in die Schablone ziehen. Ist ein Schritt abgeschlossen, ersetzt eine neue Schablone die alte — das platzierte Teil erscheint direkt eingezeichnet. Am Ende wird die fertige Lösungsgrafik eingeblendet.
+
+| Schritt | Zu platzieren | Neues Schablonenbild |
+|---------|--------------|---------------------|
+| 1 | Stempel | `Bluetenaufbau_Schablone2.png` |
+| 2 | Staubblätter | `Bluetenaufbau_Schablone3.png` |
+| 3 | Kronblätter (3×) | `Bluetenaufbau_Schablone4.png` |
+| 4 | Kelchblätter (3×) | `Bluetenaufbau_Loesung.png` |
+
+**Blütenteile und ihre Startpositionen:**
+- Oben links: Kelchblatt1 — oben Mitte: Stempel — oben rechts: Staubblätter
+- Links neben Schablone: Kelchblatt2 — rechts neben Schablone: Kelchblatt3
+- Unten: Kronblatt1, Kronblatt2, Kronblatt3
+
+**Gesperrte Teile:** Blütenteile, die noch nicht an der Reihe sind, werden grau dargestellt (Grayscale-Filter) und können nicht gezogen werden — ohne Transparenz-Hinweis.
+
+**Florin:** Erscheint oberhalb der Schablone mit einer Sprechblase. Erklärt bei jedem Schritt den aktuellen Blütenteil didaktisch, z. B. Fruchtknoten, Griffel und Narbe beim Stempel.
+
+**Fortschritt:** Punkte-Leiste am unteren Rand zeigt den aktuellen Schritt. Nach Abschluss aller Schritte erscheint der „Lektion abschließen"-Button.
+
+**Assets (`assets/Fortbildung/`):**
+`Bluetenaufbau_Schablone1–4.png`, `Bluetenaufbau_Loesung.png`, `Stempel.png`, `Staubblaetter.png`, `Kronblatt1–3.png`, `Kelchblatt1–3.png`
+
+---
+
+### Abschluss-Workflow (alle Lektionen)
 1. Nutzer klickt „Lektion abschließen" → `completeLernSession(id)`
-2. `lesson.completed = true` → nächste Lektion in `fortbildungLessons` wird zur aktiven
-3. XP wird addiert, Level-Badge im Header aktualisiert
-4. Panel schließt, kurzer Erfolgs-Toast erscheint
-5. `updateFlorinBubble()` + `renderFlorinTasks()` aktualisieren Karte und Bubble
+2. `lesson.completed = true` → nächste Lektion wird zur aktiven
+3. XP wird addiert, Level-Badge aktualisiert
+4. Kurzer Erfolgs-Toast erscheint
+5. `updateFlorinBubble()` + `renderFlorinTasks()` aktualisieren Bubble und Aufgabenliste
 
 ---
 
