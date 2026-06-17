@@ -3233,7 +3233,7 @@ function showPlantPopup(id) {
       <div class="section-label">Systematik &amp; Ökologie</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
         <div><span style="color:var(--muted);font-weight:600">Familie:</span><br><span style="font-weight:700;color:var(--ink)">${p.family}</span></div>
-        <div><span style="color:var(--muted);font-weight:600">Blühzeit:</span><br><span style="font-weight:700;color:var(--ink)">${p.bloomTime}</span></div>
+        <div><span style="color:var(--muted);font-weight:600">Blütezeit:</span><br><span style="font-weight:700;color:var(--ink)">${p.bloomTime}</span></div>
         <div><span style="color:var(--muted);font-weight:600">Standort:</span><br><span style="font-weight:700;color:var(--ink)">${p.habitat}</span></div>
         <div><span style="color:var(--muted);font-weight:600">Bestäuber:</span><br><span style="font-weight:700;color:var(--ink)">${p.pollinators}</span></div>
       </div>
@@ -3509,14 +3509,14 @@ const todoData = [
   {
     type:'Lippenblütler', xp:3,
     desc:'Finde eine Taubnessel',
-    tag:'Blühzeit: April – Oktober',
+    tag:'Blütezeit: April – Oktober',
     id:'gefleckte_taubnessel',
     isDone: () => herbarium.includes('gefleckte_taubnessel')
   },
   {
     type:'Korbblütler', xp:2,
     desc:'Bestimme das Gänseblümchen',
-    tag:'Blühzeit: März – November',
+    tag:'Blütezeit: März – November',
     id:'gaenseblumchen',
     isDone: () => herbarium.includes('gaenseblumchen')
   },
@@ -3731,7 +3731,7 @@ function _showQuizReveal() {
         <div style="background:rgba(46,125,50,0.08);border:1.5px solid rgba(46,125,50,0.18);
                     border-radius:12px;padding:9px 13px;text-align:left;margin-bottom:16px;
                     font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;color:var(--muted)">
-          Blühzeit: ${p.bloomTime} · Habitat: ${p.habitat}
+          Blütezeit: ${p.bloomTime} · Habitat: ${p.habitat}
         </div>
         <button class="btn-primary" onclick="quizState={node:'L1',path:[]};renderQuizPage()"
                 style="width:100%">Nochmal versuchen →</button>
@@ -3892,7 +3892,7 @@ function _showQuizRetry(opt) {
           Hinweis
         </div>
         <div style="font-size:12px;color:var(--ink);line-height:1.55">
-          Blühzeit: <strong>${plants[currentPlantForQuiz].bloomTime}</strong> ·
+          Blütezeit: <strong>${plants[currentPlantForQuiz].bloomTime}</strong> ·
           Habitat: ${plants[currentPlantForQuiz].habitat}
         </div>
       </div>
@@ -4062,7 +4062,7 @@ const chatResponses = {
   'gänseblümchen':   'Das Gänseblümchen ist ein Korbblütler! Was wie eine Blüte aussieht, sind viele kleine Einzelblüten – außen weiße Zungenblüten, innen gelbe Röhrenblüten. 🌸',
   'bestimmen':       'Beim Bestimmen zählst du: 1. Anzahl der Kronblätter, 2. Blattform und -stellung (gegenständig/wechselständig), 3. Standort und Jahreszeit. Diese drei Punkte verraten fast immer die Pflanzenfamilie! 🔬',
   'kronblätter':     'Die Anzahl der Kronblätter ist ein Schlüsselmerkmal: Hahnenfußgewächse haben oft 5, Korbblütler gar keine – dafür einen Blütenkopf aus vielen Einzelblüten. 🌺',
-  'blühzeit':        'Die Blühzeit zeigt dir, wann eine Pflanze zu sehen ist. Rotklee blüht von Mai bis Oktober, das Gänseblümchen fast das ganze Jahr. Frühblüher findest du schon ab März! 📅',
+  'blütezeit':       'Die Blütezeit zeigt dir, wann eine Pflanze zu sehen ist. Rotklee blüht von Mai bis Oktober, das Gänseblümchen fast das ganze Jahr. Frühblüher findest du schon ab März! 📅',
   'herbarium':       'Ein Herbarium ist eine Sammlung gepresster Pflanzen. In scavengerHunt sammelst du dein digitales Herbarium: fotografieren → Quiz bestimmen → eintragen. 📗',
   'fortbildung':     'Fortbildungsaufträge sind kleine Lernaufgaben, die ich dir je nach Jahreszeit stelle. Zum Beispiel: Blattstellung beobachten oder Kronblätter zählen. Sie geben dir XP! 🌿',
   'default':         'Interessante Frage! 🌿 Als allgemeinen Tipp: Blütenfarbe, Blattform und Standort sind die drei wichtigsten Bestimmungsmerkmale. Magst du deine Frage noch genauer formulieren?'
