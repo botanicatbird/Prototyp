@@ -4610,36 +4610,7 @@ function familyMatches(plantFamilyStr, scientificName) {
 }
 
 function _showQuizSuccess(opt) {
-  const c = document.getElementById('quizContent');
-  const p = plants[currentPlantForQuiz];
-  c.innerHTML = `
-    <div style="animation:popIn 0.35s ease">
-      <!-- Erfolgs-Header -->
-      <div style="text-align:center;background:rgba(232,245,233,0.72);
-                  border:1.5px solid rgba(76,175,80,0.28);border-radius:18px;
-                  padding:20px 14px 16px;margin-bottom:16px">
-        <div style="font-size:18px;font-weight:900;color:var(--green-dark);margin-bottom:4px">
-          Richtig bestimmt!
-        </div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.5">
-          Du hast erkannt: <strong style="color:var(--ink)">${p.family}</strong>
-        </div>
-      </div>
-      <!-- Pflanzenbild + Name -->
-      <div style="text-align:center;margin-bottom:14px">
-        <img src="${p.plantImg}" alt="${p.name}"
-             style="width:72px;height:72px;object-fit:contain;
-                    filter:drop-shadow(0 4px 10px rgba(0,0,0,0.18));margin-bottom:8px">
-        <div style="font-size:15px;font-weight:800;color:var(--ink)">${p.name}</div>
-        <div style="font-size:12px;color:var(--muted);font-style:italic;
-                    font-family:'Lora',serif">${p.latin}</div>
-      </div>
-      <div style="font-size:12px;color:var(--muted);text-align:center;
-                  margin-bottom:10px;font-style:italic">
-        Pflanze wird ins Herbarium übertragen …
-      </div>
-    </div>`;
-  setTimeout(() => completeIdentification(currentPlantForQuiz), 1900);
+  completeIdentification(currentPlantForQuiz);
 }
 
 function _showQuizRetry(opt) {
@@ -4702,29 +4673,15 @@ function completeIdentification(id) {
 
   // ── Erfolgs-Bildschirm ──────────────────────────────────────────────────
   document.getElementById('quizContent').innerHTML = `
-    <div style="text-align:center;animation:popIn 0.4s ease;padding:16px 0">
+    <div style="text-align:center;animation:popIn 0.4s ease;padding:24px 0">
+      <div style="font-size:15px;font-weight:900;color:var(--green-dark);margin-bottom:16px">
+        Richtig bestimmt!
+      </div>
       <img src="${p.plantImg}" alt="${p.name}"
            style="width:148px;height:148px;object-fit:contain;display:inline-block;
-                  filter:drop-shadow(0 8px 22px rgba(0,0,0,0.22));margin-bottom:12px">
-      <div style="font-size:22px;font-weight:900;color:var(--ink);margin-bottom:3px">
-        Wunderschön! 🎉
-      </div>
-      <div style="font-size:16px;font-weight:700;color:#2e7d32;margin-bottom:2px">${p.name}</div>
-      <div style="font-size:12px;color:var(--muted);font-style:italic;font-family:'Lora',serif;
-                  margin-bottom:14px">${p.latin}</div>
-      <div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:14px">
-        <div style="background:#e8f5e9;color:#2e7d32;border-radius:50px;padding:6px 16px;
-                    font-size:12px;font-weight:800">✓ Im Herbarium</div>
-        <div style="background:#fff9c4;color:#f57f17;border-radius:50px;padding:6px 16px;
-                    font-size:12px;font-weight:800">+${p.xp} XP</div>
-      </div>
-      <div class="lore-box" style="text-align:left;margin:0 0 16px">
-        <div style="font-size:11px;font-weight:800;color:#7d5a00;margin-bottom:4px;
-                    font-style:normal;font-family:'Nunito',sans-serif">Fun Fact</div>
-        <div style="font-size:12px;color:#5d4037;line-height:1.6">
-          ${p.lore.slice(0, 130)}…
-        </div>
-      </div>
+                  filter:drop-shadow(0 8px 22px rgba(0,0,0,0.22));margin-bottom:14px">
+      <div style="font-size:18px;font-weight:800;color:var(--ink);margin-bottom:4px">${p.name}</div>
+      <div style="font-size:13px;color:var(--muted);font-style:italic;font-family:'Lora',serif">${p.latin}</div>
     </div>`;
 
   // ── Nach Erfolgsanzeige: Quiz schließen → Steckbrief direkt zeigen ───────
