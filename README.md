@@ -347,7 +347,25 @@ Scrollbar: 4 px, dezent beige-braun (`scrollbar-width: thin`).
 ---
 
 ## 11. Panel: „To-Do Liste"
-Suchaufträge, Pflanzenaufträge und Fortbildungsaufträge in Kartenform mit XP-Anzeige.
+
+Aufträge in Kartenform mit XP-Anzeige. Es gibt drei Typen: **Sammelauftrag**, **Forscherauftrag** und **Fortbildungsauftrag**. Ein vierter Backup-Auftrag (Suchauftrag) erscheint erst, sobald mindestens einer der drei Hauptaufträge erledigt ist.
+
+### Aktuelle Aufträge (`todoData[]`)
+
+| Typ | Beschreibung | XP | Icon | Bedingung |
+|-----|-------------|-----|------|-----------|
+| Sammelauftrag | Sammle 3 Lippenblütler | 5 | `Lippenbluetler.png` | Gefleckte Taubnessel, Goldnessel, Weiße Taubnessel alle im Herbarium |
+| Forscherauftrag | Schalte eine neue Pflanzenfamilie frei | 3 | `Camera.png` | ≥ 2 verschiedene Familien im Herbarium |
+| Fortbildungsauftrag | Absolviere Florins Lektion zum Blütenaufbau | 4 | `Gardener_head.png` | `bluetenaufbau` abgeschlossen |
+| Suchauftrag *(Backup)* | Finde eine Gefleckte Taubnessel | 2 | Pflanzen-PNG | Pflanze im Herbarium |
+
+### Icon-Logik
+- **Fortbildungsauftrag** → `assets/Gardener_head.png`
+- **Explizites `icon`-Feld** → das angegebene Asset (z. B. Quiz-PNG oder Camera.png)
+- **Pflanzenbezogen (`id`-Feld)** → Pflanzen-PNG aus `plants[]`
+- **Fallback** → `assets/icons/Camera.png`
+
+Erledigte Aufträge wandern ans Ende der Liste. Der Backup-Auftrag bleibt ausgeblendet, bis mindestens einer der ersten drei abgehakt ist.
 
 ---
 
