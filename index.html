@@ -2020,23 +2020,9 @@ body {
   width: 180px;
   height: 180px;
   border-radius: 50%;
-  box-shadow:
-    inset -30px -24px 60px rgba(0, 0, 0, 0.38),
-    inset 14px 12px 32px rgba(255, 255, 255, 0.13),
-    0 8px 32px rgba(20, 60, 20, 0.22);
+  box-shadow: 0 6px 24px rgba(20, 60, 20, 0.18);
 }
-/* Specular highlight – bright spot upper-left */
-.welten-planet::after {
-  content: '';
-  position: absolute;
-  width: 68px;
-  height: 52px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(255,255,255,0.38) 0%, transparent 75%);
-  top: 18px;
-  left: 22px;
-  pointer-events: none;
-}
+.welten-planet::after { display: none; }
 
 /* Sun icon at globe centre – counter-rotates to stay upright */
 .welten-planet-core {
@@ -2067,6 +2053,11 @@ body {
 @keyframes weltenCoreStay {
   from { transform: translate(-50%, -50%) rotate(0deg);    }
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+/* For past worlds: core stays completely still */
+.welten-planet-core--still {
+  animation: none !important;
+  transform: translate(-50%, -50%) !important;
 }
 
 /* World name below globe */
@@ -4626,7 +4617,7 @@ const worldDefs = [
     iconImg:         'assets/icons/sun.png',
     iconLucide:      null,
     iconLucideColor: null,
-    bg:        'radial-gradient(circle at 36% 30%, #e6f2ea 0%, #c0d1ba 24%, #8aaa94 48%, #4e7060 72%, #22382c 100%)',
+    bg:        '#8aaa94',
     miniColor: 'radial-gradient(circle at 36% 32%, #e6f2ea 0%, #c0d1ba 30%, #8aaa94 62%, #22382c 100%)',
     plants:    allSpringPlants,
     active:    true
@@ -4637,8 +4628,16 @@ const worldDefs = [
     iconImg:         'assets/icons/Fruehblueher.png',
     iconLucide:      null,
     iconLucideColor: null,
-    bg:        'radial-gradient(circle at 36% 30%, #d4f0a0 0%, #90c840 28%, #50901c 56%, #1e5008 100%)',
-    miniColor: 'radial-gradient(circle at 36% 32%, #d4f0a0 0%, #90c840 36%, #50901c 65%, #1e5008 100%)',
+    bg:        '#dff0c0',
+    miniColor: '#dff0c0',
+    past:      true,
+    plantImgs: [
+      'assets/Plants/Fruehblueher/Baerlauch.png',
+      'assets/Plants/Fruehblueher/Gaensebluemchen.png',
+      'assets/Plants/Fruehblueher/Kastanienbaum.png',
+      'assets/Plants/Fruehblueher/Kirschbaum.png',
+      'assets/Plants/Fruehblueher/Schlusselblume.png',
+    ],
     plants:    [],
     active:    false
   },
@@ -4648,8 +4647,8 @@ const worldDefs = [
     iconImg:         'assets/icons/Herbstblueher.png',
     iconLucide:      null,
     iconLucideColor: null,
-    bg:        'radial-gradient(circle at 36% 30%, #f0c07a 0%, #d07030 30%, #9a4010 60%, #5a1e06 100%)',
-    miniColor: 'radial-gradient(circle at 36% 32%, #f0c07a 0%, #d07030 38%, #9a4010 68%, #5a1e06 100%)',
+    bg:        '#d07030',
+    miniColor: '#d07030',
     plants:    [],
     active:    false
   },
@@ -4659,8 +4658,8 @@ const worldDefs = [
     iconImg:         'assets/icons/Winterblueher.png',
     iconLucide:      null,
     iconLucideColor: null,
-    bg:        'radial-gradient(circle at 36% 30%, #b8d8f0 0%, #6898c8 30%, #3060a0 60%, #102040 100%)',
-    miniColor: 'radial-gradient(circle at 36% 32%, #b8d8f0 0%, #6898c8 38%, #3060a0 68%, #102040 100%)',
+    bg:        '#6898c8',
+    miniColor: '#6898c8',
     plants:    [],
     active:    false
   }
@@ -4678,16 +4677,12 @@ function closeWeltenOverlay() {
   if (info) info.style.display = 'none';
 }
 
-function renderWeltenOverlay() {
-  const world      = worldDefs.find(w => w.active);
-  const discovered = herbarium.filter(id => world.plants.includes(id));
-  const N          = world.plants.length;
+function renderWeltenOverlay(focusId = null) {
+  const activeWorld = worldDefs.find(w => w.active);
+  const focusWorld  = focusId ? worldDefs.find(w => w.id === focusId) : null;
+  const world       = focusWorld || activeWorld;
 
-  // ---- Plants fixed on sphere surface, rotate with globe ----
-  // Varied radii + angles so plants look naturally scattered on the sphere.
-  // No counter-rotation → they tumble as the globe spins.
   const ORBIT_CX = 110, ORBIT_CY = 110;
-  // Predefined positions (angle offset °, radius px, size px) for up to 8 plants
   const slots = [
     { angleDeg:  20, r: 78, size: 46 },
     { angleDeg: 100, r: 68, size: 40 },
@@ -4698,31 +4693,56 @@ function renderWeltenOverlay() {
     { angleDeg: 145, r: 50, size: 34 },
     { angleDeg: 290, r: 85, size: 48 },
   ];
-  const orbitItemsHtml = world.plants
-    .filter(id => discovered.includes(id))
-    .map((id, i) => {
+
+  // Orbit plants: past worlds use plantImgs directly, active world uses herbarium
+  let orbitItemsHtml = '';
+  const treePngs = ['Kastanienbaum', 'Kirschbaum'];
+  if (world.past && world.plantImgs) {
+    orbitItemsHtml = world.plantImgs.map((src, i) => {
       const slot    = slots[i % slots.length];
+      const isTree  = treePngs.some(t => src.includes(t));
+      const size    = isTree ? slot.size + 40 : slot.size + 34;
       const angle   = slot.angleDeg * Math.PI / 180;
       const cx      = ORBIT_CX + slot.r * Math.cos(angle);
       const cy      = ORBIT_CY + slot.r * Math.sin(angle);
-      const p       = plants[id];
-      const half    = slot.size / 2;
-      // Rotate so the plant's bottom always points toward globe centre
+      const half    = size / 2;
       const initRot = slot.angleDeg + 90;
-      return `<img src="${p.plantImg}" alt="${p.name}" class="welten-orbit-plant"
-               style="left:${cx}px;top:${cy}px;width:${slot.size}px;height:${slot.size}px;
+      return `<img src="${src}" class="welten-orbit-plant"
+               style="left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;
                       margin-left:-${half}px;margin-top:-${half}px;
                       transform-origin:center center;transform:rotate(${initRot}deg)">`;
     }).join('');
+  } else {
+    const discovered = herbarium.filter(id => world.plants.includes(id));
+    orbitItemsHtml = world.plants
+      .filter(id => discovered.includes(id))
+      .map((id, i) => {
+        const slot    = slots[i % slots.length];
+        const isLarge = plants[id]?.large;
+        const size    = isLarge ? slot.size + 40 : slot.size + 34;
+        const angle   = slot.angleDeg * Math.PI / 180;
+        const cx      = ORBIT_CX + slot.r * Math.cos(angle);
+        const cy      = ORBIT_CY + slot.r * Math.sin(angle);
+        const p       = plants[id];
+        const half    = size / 2;
+        const initRot = slot.angleDeg + 90;
+        return `<img src="${p.plantImg}" alt="${p.name}" class="welten-orbit-plant"
+                 style="left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;
+                        margin-left:-${half}px;margin-top:-${half}px;
+                        transform-origin:center center;transform:rotate(${initRot}deg)">`;
+      }).join('');
+  }
 
-  // ---- Central icon – sun stays upright via counter-rotation ----
-  const coreHtml = world.iconImg
-    ? `<img src="${world.iconImg}" alt="${world.name}" class="welten-planet-core">`
-    : `<i data-lucide="${world.iconLucide}" class="welten-planet-core"
-          style="width:38px;height:38px;color:${world.iconLucideColor}"></i>`;
+  const coreHtml = world.past
+    ? `<img src="${world.iconImg}" alt="${world.name}" class="welten-planet-core"
+            style="animation:none;transform:translate(-50%,-50%)">`
+    : world.iconImg
+      ? `<img src="${world.iconImg}" alt="${world.name}" class="welten-planet-core">`
+      : `<i data-lucide="${world.iconLucide}" class="welten-planet-core"
+            style="width:38px;height:38px;color:${world.iconLucideColor}"></i>`;
 
-  // ---- Inactive worlds – coloured orbs only, no icons yet ----
-  const inactiveHtml = worldDefs.filter(w => !w.active).map(w => `
+  // Bottom row: all worlds except the focused one
+  const inactiveHtml = worldDefs.filter(w => w.id !== world.id).map(w => `
     <div class="welten-mini-world" onclick="showSeasonInfo('${w.id}')">
       <div class="welten-mini-planet" style="background:${w.miniColor}"></div>
       <div class="welten-mini-label">${w.name}</div>
@@ -4749,6 +4769,10 @@ function renderWeltenOverlay() {
 function showSeasonInfo(id) {
   const world = worldDefs.find(w => w.id === id);
   if (!world) return;
+
+  if (world.active) { renderWeltenOverlay(); return; }
+  if (world.past)   { renderWeltenOverlay(world.id); return; }
+
   const info = document.getElementById('weltenSeasonInfo');
   if (!info) return;
   info.innerHTML = `
@@ -4756,7 +4780,7 @@ function showSeasonInfo(id) {
       <div class="welten-season-popup-name">${world.name}</div>
       <div class="welten-season-popup-text">
         Diese Welt ist noch nicht verfügbar.<br>
-        Komm wieder, wenn der ${world.name} beginnt!
+        Komme wieder, wenn die ${world.name}welt beginnt.
       </div>
       <button class="welten-season-popup-btn"
               onclick="document.getElementById('weltenSeasonInfo').style.display='none'">
@@ -4766,6 +4790,7 @@ function showSeasonInfo(id) {
   `;
   info.style.display = 'flex';
 }
+
 
 init();
 lucide.createIcons();
