@@ -2176,12 +2176,143 @@ body {
   transform: scale(1.06);
   box-shadow: 0 4px 18px rgba(40, 60, 40, 0.32);
 }
+/* ===================== SEASON INTRO OVERLAY ===================== */
+#seasonIntroOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  background: rgba(30, 55, 30, 0.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px;
+  backdrop-filter: blur(5px);
+}
+#seasonIntroCard {
+  background: var(--parchment);
+  border-radius: 24px;
+  padding: 28px 22px 24px;
+  text-align: center;
+  max-width: 320px;
+  animation: popIn 0.35s ease;
+  box-shadow: 0 8px 32px rgba(20,50,20,0.22);
+}
+#seasonIntroCard .intro-florin {
+  width: 62px; height: 62px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+#seasonIntroCard .intro-title {
+  font-size: 15px; font-weight: 800;
+  color: var(--ink); margin-bottom: 10px;
+}
+#seasonIntroCard .intro-body {
+  font-size: 13px; color: var(--muted);
+  line-height: 1.6; margin-bottom: 20px;
+}
+#seasonIntroCard .intro-btn {
+  background: #7d9e7a;
+  color: #fff;
+  border: none; border-radius: 50px;
+  padding: 11px 36px;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+}
+/* Summer toast that pops up after the transition */
+#summerToast {
+  position: absolute;
+  bottom: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: var(--parchment);
+  border-radius: 50px;
+  padding: 11px 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 18px rgba(20,60,20,0.18);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+/* Color overlay that fades from spring green → transparent */
+#springColorOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #dff0c0;
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+  transition: opacity 2.2s ease;
+}
+/* Temporary spring pins layer */
+#springPinsLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  display: none;
+}
+#springPinsLayer .spring-pin-wrap {
+  position: absolute;
+  transition: opacity 0.6s ease;
+}
 </style>
 </head>
 <body>
 <div id="phone-shell">
 
 <!-- ========================= MAP BACKGROUND ========================= -->
+<!-- Season transition: spring color wash + spring plant pins -->
+<div id="springColorOverlay">
+  <svg viewBox="0 0 460 820" xmlns="http://www.w3.org/2000/svg"
+       preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%">
+    <rect width="460" height="820" fill="#dff0c0"/>
+    <ellipse cx="80" cy="220" rx="82" ry="60" fill="#c8e89e" opacity="0.7"/>
+    <ellipse cx="390" cy="310" rx="72" ry="52" fill="#c8e89e" opacity="0.65"/>
+    <ellipse cx="200" cy="580" rx="130" ry="88" fill="#c6e69c" opacity="0.62"/>
+    <ellipse cx="390" cy="630" rx="68" ry="48" fill="#bce090" opacity="0.6"/>
+    <ellipse cx="50" cy="660" rx="55" ry="40" fill="#c6e69c" opacity="0.55"/>
+    <path d="M0,340 Q90,323 165,332 Q240,342 272,308 Q304,274 380,282 Q430,288 460,276"
+          stroke="#d8cdb0" stroke-width="20" fill="none" stroke-linecap="round"/>
+    <path d="M272,308 Q278,390 274,478 Q270,560 272,680"
+          stroke="#d8cdb0" stroke-width="15" fill="none" stroke-linecap="round"/>
+    <path d="M84,162 Q88,222 96,340"
+          stroke="#d8cdb0" stroke-width="13" fill="none" stroke-linecap="round"/>
+    <path d="M0,520 Q70,510 140,518 Q200,525 272,510"
+          stroke="#d8cdb0" stroke-width="11" fill="none" stroke-linecap="round"/>
+    <path d="M360,400 Q420,388 460,392"
+          stroke="#d8cdb0" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <g transform="translate(72,76)">
+      <circle r="22" fill="rgba(255,250,240,0.78)"/>
+      <text x="0" y="-9"  font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">N</text>
+      <text x="0" y="17"  font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">S</text>
+      <text x="-14" y="5" font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">W</text>
+      <text x="14"  y="5" font-size="10" text-anchor="middle" font-family="Nunito" font-weight="800" fill="#7a9e7a">O</text>
+      <polygon points="0,-14 3,1 0,5 -3,1"  fill="#b03020" opacity="0.8"/>
+      <polygon points="0,14  3,-1 0,-5 -3,-1" fill="#808080" opacity="0.55"/>
+    </g>
+  </svg>
+</div>
+<div id="springPinsLayer"></div>
+
+<!-- Intro card shown once on first load -->
+<div id="seasonIntroOverlay">
+  <div id="seasonIntroCard">
+    <img src="assets/Gardener_head.png" class="intro-florin" alt="Florin">
+    <div class="intro-title">Die Frühblüher sind verblüht</div>
+    <div class="intro-body">Dein gesammelter Fortschritt ist für immer in deinem Herbarium verewigt.<br><br>Nächstes Frühjahr erscheinen die Pflanzen automatisch wieder an ihren Fundstellen auf der Karte.</div>
+    <button class="intro-btn" onclick="startSeasonTransition()">Okay</button>
+  </div>
+</div>
+
 <div class="map-bg">
   <svg viewBox="0 0 460 820" xmlns="http://www.w3.org/2000/svg"
        preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%">
@@ -2261,7 +2392,7 @@ body {
 
 <!-- ========================= TOP-RIGHT BADGES ========================= -->
 <div class="top-bar">
-  <div class="top-badge">
+  <div class="top-badge" id="levelBadge">
     Level <span id="levelNum">3</span>
     &nbsp;·&nbsp;
     <span id="herbCount">1</span>/4
@@ -2519,7 +2650,7 @@ const plants = {
     emoji:'🌸', plantImg:'assets/Plants/Fruehblueher/Gaensebluemchen.png',
     name:'Gänseblümchen', latin:'Bellis perennis',
     family:'Korbblütengewächse (Asteraceae)', world:'frühblüher',
-    bg:'#fce4ec', border:'#f48fb1', text:'#e91e63', inHerbarium:false,
+    bg:'#fce4ec', border:'#f48fb1', text:'#e91e63', inHerbarium:true,
     habitat:'Rasenflächen, Wiesen, Parkanlagen',
     pollinators:'🦋 Schmetterlinge, 🐝 Bienen', stars:2, bloomTime:'März – November',
     lore:'"Bellis" bedeutet auf Lateinisch "schön". Das Gänseblümchen schließt seine Blüte bei Regen und Dunkelheit, um den Pollen zu schützen. In der Volksmedizin wurden gequetschte Blätter auf Wunden gelegt. Durch das Liebes-Orakel "Er liebt mich, liebt mich nicht..." wurde es zum Symbol der Weissagung.',
@@ -2529,7 +2660,7 @@ const plants = {
     emoji:'🍀', plantImg:'assets/Plants/Sommerblueher/Rotklee.png',
     name:'Wiesen-Rotklee', latin:'Trifolium pratense',
     family:'Hülsenfrüchtler (Fabaceae)', world:'sommerblüher',
-    bg:'#fce4ec', border:'#e57373', text:'#c62828', inHerbarium:true,
+    bg:'#fce4ec', border:'#e57373', text:'#c62828', inHerbarium:false,
     habitat:'Wiesen, Weiden, Wegränder, Böschungen',
     pollinators:'🐝 Hummeln, 🦋 Schmetterlinge', stars:4, bloomTime:'Mai – Oktober',
     lore:'Nur der lange Rüssel der Hummel reicht an den Nektar – er ist der wichtigste Bestäuber. Als Leguminose fixiert Rotklee Luftstickstoff: Bakterien an seinen Wurzeln düngen den Boden ganz ohne Kunstdünger. Bei den Kelten galt das vierblättrige Kleeblatt als Zeichen der Götter.',
@@ -2539,10 +2670,60 @@ const plants = {
     emoji:'🌸', plantImg:'assets/Plants/Fruehblueher/Kirschbaum.png',
     name:'Vogelkirsche', latin:'Prunus avium',
     family:'Rosengewächse (Rosaceae)', world:'frühblüher',
-    bg:'#fce4ec', border:'#f48fb1', text:'#c2185b', inHerbarium:false,
+    bg:'#fce4ec', border:'#f48fb1', text:'#c2185b', inHerbarium:true,
     habitat:'Laubwälder, Waldränder, Parks, Streuobstwiesen',
     pollinators:'🐝 Bienen, 🦋 Schmetterlinge, 🪲 Käfer', stars:4, bloomTime:'März – Mai',
     lore:'Die Vogelkirsche blüht noch bevor die Blätter austreiben – ein Frühlingsbote, der kaum zu übersehen ist. Ihr Name kommt von den Vögeln, die ihre kleinen schwarzroten Früchte lieben und so die Samen weitertragen. Sie ist die Stammform aller Süßkirschen im Obstgarten. Ein einziger Baum kann im Frühling über 100.000 Blüten öffnen!',
+    xp:55
+  },
+  baerlauch: {
+    emoji:'🌿', plantImg:'assets/Plants/Fruehblueher/Baerlauch.png',
+    name:'Bärlauch', latin:'Allium ursinum',
+    family:'Amaryllisgewächse (Amaryllidaceae)', world:'frühblüher',
+    bg:'#e8f5e9', border:'#81c784', text:'#2e7d32', inHerbarium:true,
+    habitat:'Feuchte Laubwälder, Auwälder, Bachufer',
+    pollinators:'🐝 Bienen, 🪲 Käfer', stars:3, bloomTime:'März – Mai',
+    lore:'Bärlauch riecht intensiv nach Knoblauch – kein Wunder, denn er ist ein echter Verwandter. Der Name kommt daher, dass Bären nach dem Winterschlaf zuerst Bärlauch fraßen, um wieder zu Kräften zu kommen. Seine weißen sternförmigen Blüten überziehen ganze Waldböden wie ein Schneeteppich. Vorsicht: Er sieht dem giftigen Maiglöckchen täuschend ähnlich!',
+    xp:45
+  },
+  kastanienbaum: {
+    emoji:'🌰', plantImg:'assets/Plants/Fruehblueher/Kastanienbaum.png',
+    name:'Rosskastanie', latin:'Aesculus hippocastanum',
+    family:'Seifenbaumgewächse (Sapindaceae)', world:'frühblüher',
+    bg:'#fff8e1', border:'#ffca28', text:'#e65100', inHerbarium:true,
+    habitat:'Parks, Alleen, Straßenränder, Laubwälder',
+    pollinators:'🐝 Bienen, 🐝 Hummeln', stars:3, bloomTime:'April – Mai',
+    lore:'Die Rosskastanie stammt ursprünglich aus dem Balkan und wurde im 16. Jahrhundert nach Mitteleuropa gebracht. Ihre weißen Blütenkerzen können bis zu 30 cm hoch werden. Ein cleverer Trick: Die gelben Flecken in der Blüte wechseln nach der Bestäubung zu Rot – ein Signal an Insekten, dass hier kein Nektar mehr zu holen ist.',
+    xp:50
+  },
+  schlusselblume: {
+    emoji:'🌼', plantImg:'assets/Plants/Fruehblueher/Schlusselblume.png',
+    name:'Echte Schlüsselblume', latin:'Primula veris',
+    family:'Primelgewächse (Primulaceae)', world:'frühblüher',
+    bg:'#fffde7', border:'#ffd54f', text:'#f57f17', inHerbarium:true,
+    habitat:'Magerwiesen, Wegränder, lichte Wälder, Kalkböden',
+    pollinators:'🐝 Bienen, 🦋 Schmetterlinge', stars:4, bloomTime:'März – Mai',
+    lore:'Die Schlüsselblume gilt als Zeigerpflanze für artenreiche Magerwiesen – wo sie wächst, ist die Natur meist noch in Ordnung. Ihr Name kommt von der Form der Blüten, die einem mittelalterlichen Schlüsselbund ähneln. Sie ist eine der ersten Frühlingsboten und besonders wichtig für frühe Hummeln nach dem Winter.',
+    xp:55
+  },
+  schneeglockchen_frueh: {
+    emoji:'🌱', plantImg:'',
+    name:'Schneeglöckchen', latin:'Galanthus nivalis',
+    family:'Amaryllisgewächse (Amaryllidaceae)', world:'frühblüher',
+    bg:'#f3f8ff', border:'#90caf9', text:'#1565c0', inHerbarium:false,
+    habitat:'Laubwälder, Parkwiesen, Bachufer',
+    pollinators:'🐝 Bienen, 🦋 Schmetterlinge', stars:3, bloomTime:'Januar – März',
+    lore:'Das Schneeglöckchen ist eines der ersten Blühpflanzen des Jahres – es kann sogar durch Schneedecken hindurch wachsen. Sein Gift schützt es vor Fraßfeinden. Aus dem Wirkstoff Galantamin wird heute ein Medikament gegen Alzheimer hergestellt.',
+    xp:50
+  },
+  leberblumchen: {
+    emoji:'🌱', plantImg:'',
+    name:'Leberblümchen', latin:'Hepatica nobilis',
+    family:'Hahnenfußgewächse (Ranunculaceae)', world:'frühblüher',
+    bg:'#ede7f6', border:'#9575cd', text:'#4527a0', inHerbarium:false,
+    habitat:'Laubwälder, Kalkböden, Schattenhänge',
+    pollinators:'🐝 Bienen, 🪲 Käfer', stars:4, bloomTime:'Februar – April',
+    lore:'Das Leberblümchen verdankt seinen Namen der dreilappigen Blattform, die einer Leber ähnelt. Im Mittelalter glaubte man daher, es helfe bei Leberkrankheiten. Seine kleinen blauen bis violetten Blüten erscheinen oft noch vor den Blättern – ein echter Frühlingsbote im Wald.',
     xp:55
   },
   lupine: {
@@ -2684,19 +2865,19 @@ const quizTree = {
 };
 
 // Plants in the active Sommerblüher world (used for welten globe orbit)
-const allSpringPlants = ['rotklee','lupine','gefleckte_taubnessel','goldnessel','weisse_taubnessel','hahnenfuss','linde','gaenseblumchen'];
+const allSpringPlants = ['rotklee','lupine','gefleckte_taubnessel','goldnessel','weisse_taubnessel','hahnenfuss','linde'];
 
 // All 4 world groups — plant IDs that don't yet exist in plants{} show as locked placeholders
 const worldGroups = [
   {
     id: 'frühblüher', name: 'Frühblüher',
     colorLabel: '#2e7d32', iconImg: 'assets/icons/Fruehblueher.png',
-    plantIds: ['baerlauch','kirschbaum','apfelbaum','schlusselblume','gaenseblumchen']
+    plantIds: ['baerlauch','gaenseblumchen','kastanienbaum','kirschbaum','schlusselblume','schneeglockchen_frueh','leberblumchen']
   },
   {
     id: 'sommerblüher', name: 'Sommerblüher',
     colorLabel: '#d07000', iconImg: 'assets/icons/sun.png',
-    plantIds: ['rotklee','lupine','gefleckte_taubnessel','goldnessel','weisse_taubnessel','hahnenfuss','linde','gaenseblumchen']
+    plantIds: ['rotklee','lupine','gefleckte_taubnessel','goldnessel','weisse_taubnessel','hahnenfuss','linde']
   },
   {
     id: 'herbstblüher', name: 'Herbstblüher',
@@ -2738,6 +2919,9 @@ const pinData = [
   { id: 'kirschbaum',       svgX: 350, svgY: 245, label: 'Vogelkirsche',  large: true },
   { id: 'hahnenfuss',       svgX: 120, svgY: 530, label: 'Hahnenfuß'                 },
   { id: 'linde',            svgX: 310, svgY: 350, label: 'Sommerlinde',  large: true },
+  { id: 'baerlauch',        svgX:  95, svgY: 360, label: 'Bärlauch'                  },
+  { id: 'kastanienbaum',    svgX: 290, svgY: 195, label: 'Rosskastanie', large: true },
+  { id: 'schlusselblume',   svgX: 345, svgY: 640, label: 'Schlüsselblume'            },
 ];
 
 // ==================== PNG PLANT PINS ====================
@@ -2745,8 +2929,11 @@ function renderPins() {
   const layer = document.getElementById('pinsLayer');
   if (!layer) return;
 
-  // Only plants already identified (in herbarium) appear on the map
-  const visiblePins = pinData.filter(pin => herbarium.includes(pin.id));
+  // Only plants of the active world that are already identified appear on the map
+  const activeWorldId = worldDefs.find(w => w.active)?.id;
+  const visiblePins = pinData.filter(pin =>
+    herbarium.includes(pin.id) && plants[pin.id]?.world === activeWorldId
+  );
 
   layer.innerHTML = visiblePins.map(pin => `
     <div class="plant-pin-wrap" data-svgx="${pin.svgX}" data-svgy="${pin.svgY}"
@@ -2793,6 +2980,95 @@ function init() {
   // Bereits freigeschaltete Trophäen vormerken – keine Benachrichtigung beim Start
   equipmentItems.forEach(item => { if (item.isUnlocked()) item._wasUnlocked = true; });
   initPollinators();
+  // Show season transition intro on every load (prototype behaviour)
+  document.getElementById('seasonIntroOverlay').style.display = 'flex';
+}
+
+function startSeasonTransition() {
+  // 1 — fade out intro card
+  const overlay = document.getElementById('seasonIntroOverlay');
+  overlay.style.transition = 'opacity 0.4s ease';
+  overlay.style.opacity = '0';
+  setTimeout(() => { overlay.style.display = 'none'; overlay.style.opacity = ''; }, 420);
+
+  // 1b — switch both badges to spring colors
+  const seasonBadge = document.querySelector('.top-badge-season');
+  seasonBadge.innerHTML = 'Frühling <img src="assets/icons/Fruehblueher.png" alt="" class="badge-icon-img">';
+  seasonBadge.style.background = 'rgba(140,180,100,0.93)';
+  seasonBadge.style.transition = 'background 3s ease';
+  const levelBadge = document.getElementById('levelBadge');
+  levelBadge.style.background = 'rgba(140,180,100,0.93)';
+  levelBadge.style.transition = 'background 3s ease';
+
+  // 2 — build spring pins from collected frühblüher
+  const springLayer = document.getElementById('springPinsLayer');
+  const shell = document.getElementById('phone-shell');
+  const vbW = 460, vbH = 820;
+  const scaleX = shell.offsetWidth  / vbW;
+  const scaleY = shell.offsetHeight / vbH;
+
+  const springPins = pinData.filter(pin =>
+    plants[pin.id]?.world === 'frühblüher' && herbarium.includes(pin.id)
+  );
+  springLayer.innerHTML = springPins.map(pin => {
+    const p = plants[pin.id];
+    const x = pin.svgX * scaleX;
+    const y = pin.svgY * scaleY;
+    const sz = pin.large ? 96 : 62;
+    return `<div class="spring-pin-wrap" style="left:${x - sz/2}px;top:${y - sz/2}px">
+      <img src="${p.plantImg}" style="width:${sz}px;height:${sz}px;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.18))">
+    </div>`;
+  }).join('');
+  springLayer.style.display = 'block';
+
+  // 3 — show spring color wash, hold briefly, then fade out slowly
+  const colorOverlay = document.getElementById('springColorOverlay');
+  colorOverlay.style.transition = 'none';
+  colorOverlay.style.display = 'block';
+  colorOverlay.style.opacity = '1';
+  colorOverlay.getBoundingClientRect();
+  setTimeout(() => {
+    colorOverlay.style.transition = 'opacity 4s ease';
+    colorOverlay.style.opacity = '0';
+  }, 600);
+
+  // 4 — stagger-fade each spring pin out slowly
+  const pinWraps = springLayer.querySelectorAll('.spring-pin-wrap');
+  pinWraps.forEach((el, i) => {
+    el.style.transition = 'opacity 0.9s ease';
+    setTimeout(() => { el.style.opacity = '0'; }, 700 + i * 500);
+  });
+
+  // 5 — after all pins gone, show hurra toast, then clean up
+  const pinsDone = 700 + pinWraps.length * 500 + 1000;
+  setTimeout(() => { showSummerToast(); }, pinsDone - 400);
+  setTimeout(() => {
+    springLayer.style.display = 'none';
+    colorOverlay.style.display = 'none';
+    // revert both badges to summer
+    seasonBadge.style.transition = 'background 1.2s ease';
+    seasonBadge.style.background = '';
+    seasonBadge.innerHTML = 'Sommer <img src="assets/icons/sun.png" alt="" class="badge-icon-img">';
+    levelBadge.style.transition = 'background 1.2s ease';
+    levelBadge.style.background = '';
+  }, pinsDone + 200);
+}
+
+function showSummerToast() {
+  let toast = document.getElementById('summerToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'summerToast';
+    toast.innerHTML = `<img src="assets/icons/sun.png" style="width:20px;height:20px;object-fit:contain"> Willkommen in der Sommerwelt!`;
+    document.getElementById('phone-shell').appendChild(toast);
+  }
+  toast.style.display = 'flex';
+  toast.getBoundingClientRect();
+  toast.style.opacity = '1';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => { toast.style.display = 'none'; }, 520);
+  }, 2800);
 }
 
 // ==================== PANELS ====================
@@ -3191,7 +3467,8 @@ function _launchPollinatorFlight(def) {
 
   if (mode < 0.45 && herbarium.length >= 2) {
     // ── Modus A: Pflanze → Pflanze ──────────────────────────
-    const pins = pinData.filter(p => herbarium.includes(p.id));
+    const activeWorldId = worldDefs.find(w => w.active)?.id;
+    const pins = pinData.filter(p => herbarium.includes(p.id) && plants[p.id]?.world === activeWorldId);
     if (pins.length < 2) { el.remove(); _schedulePollinatorFlight(def); return; }
     const shuffle = [...pins].sort(() => Math.random() - 0.5);
     const [from, to] = shuffle.slice(0, 2);
