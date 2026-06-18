@@ -4618,7 +4618,6 @@ function _showQuizSuccess(opt) {
       <div style="text-align:center;background:rgba(232,245,233,0.72);
                   border:1.5px solid rgba(76,175,80,0.28);border-radius:18px;
                   padding:20px 14px 16px;margin-bottom:16px">
-        <div style="font-size:36px;margin-bottom:8px">🌿</div>
         <div style="font-size:18px;font-weight:900;color:var(--green-dark);margin-bottom:4px">
           Richtig bestimmt!
         </div>
@@ -4798,10 +4797,20 @@ function renderHerbarium() {
       Noch keine Pflanzen bestimmt!
     </div>`;
   } else {
-    famEl.innerHTML = Object.entries(famMap).map(([fam, ids]) => `
+  const familyIcons = {
+    'Lippenblütengewächse (Lamiaceae)':    'assets/quiz/Lippenbluetler.png',
+    'Korbblütengewächse (Asteraceae)':     'assets/quiz/Korbbluetler.png',
+    'Hülsenfrüchtler (Fabaceae)':          'assets/quiz/Schmetterlingsbluetler.png',
+    'Rosengewächse (Rosaceae)':            'assets/quiz/Rosengewaechse.png',
+    'Hahnenfußgewächse (Ranunculaceae)':   'assets/quiz/Hahnenfussgewaechse.png',
+  };
+    famEl.innerHTML = Object.entries(famMap).map(([fam, ids]) => {
+      const iconSrc = familyIcons[fam] || 'assets/icons/Blatt.png';
+      const iconSize = familyIcons[fam] ? '28px' : '17px';
+      return `
       <div style="margin-bottom:14px">
-        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:5px">
-          <img src="assets/icons/Blatt.png" alt="" style="width:17px;height:17px;object-fit:contain;opacity:0.75">
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <img src="${iconSrc}" alt="" style="width:${iconSize};height:${iconSize};object-fit:contain;opacity:0.9">
           ${fam}
           <span style="color:var(--muted);font-weight:600">(${ids.length})</span>
         </div>
@@ -4814,7 +4823,8 @@ function renderHerbarium() {
             </div>`;
           }).join('')}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     lucide.createIcons();
   }
   updateTopBar();
