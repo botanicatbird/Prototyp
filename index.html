@@ -2991,7 +2991,7 @@ function startSeasonTransition() {
   overlay.style.opacity = '0';
   setTimeout(() => { overlay.style.display = 'none'; overlay.style.opacity = ''; }, 420);
 
-  // 1b — switch both badges to spring colors
+  // 1b — switch badges, nav and FAB to spring colors
   const seasonBadge = document.querySelector('.top-badge-season');
   seasonBadge.innerHTML = 'Frühling <img src="assets/icons/Fruehblueher.png" alt="" class="badge-icon-img">';
   seasonBadge.style.background = 'rgba(140,180,100,0.93)';
@@ -2999,6 +2999,12 @@ function startSeasonTransition() {
   const levelBadge = document.getElementById('levelBadge');
   levelBadge.style.background = 'rgba(140,180,100,0.93)';
   levelBadge.style.transition = 'background 3s ease';
+  const leftNav = document.querySelector('.left-nav');
+  leftNav.style.background = 'rgba(140,180,100,0.93)';
+  leftNav.style.transition = 'background 3s ease';
+  const scanBtn = document.getElementById('scanBtn');
+  scanBtn.style.background = 'rgba(140,180,100,0.93)';
+  scanBtn.style.transition = 'background 3s ease';
 
   // 2 — build spring pins from collected frühblüher
   const springLayer = document.getElementById('springPinsLayer');
@@ -3045,12 +3051,16 @@ function startSeasonTransition() {
   setTimeout(() => {
     springLayer.style.display = 'none';
     colorOverlay.style.display = 'none';
-    // revert both badges to summer
+    // revert all elements to summer colors
     seasonBadge.style.transition = 'background 1.2s ease';
     seasonBadge.style.background = '';
     seasonBadge.innerHTML = 'Sommer <img src="assets/icons/sun.png" alt="" class="badge-icon-img">';
     levelBadge.style.transition = 'background 1.2s ease';
     levelBadge.style.background = '';
+    leftNav.style.transition = 'background 1.2s ease';
+    leftNav.style.background = '';
+    scanBtn.style.transition = 'background 1.2s ease';
+    scanBtn.style.background = '';
   }, pinsDone + 200);
 }
 
