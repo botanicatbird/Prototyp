@@ -299,14 +299,16 @@ Der Einstieg erfolgt über Florins Chat-Panel → Lektion-Karte → „Lektion s
 ---
 
 ## 10. Panel: „Das Herbarium"
+
+**Herbarium = permanent, Karte = saisonal.** Gesammelte Pflanzen bleiben dauerhaft im Herbarium, auch wenn ihre Saison vorbei ist. Auf der Karte erscheinen nur Pflanzen der aktuell aktiven Welt.
+
 Unterteilt in **3 Reiter (Tabs)**:
 1. **Nach Welten / Blütezeit:** Vier feste botanische Kategorien, vollständig dynamisch durch `renderHerbarium()` gerendert:
-   - **Frühblüher** (grün, `assets/icons/Fruehblueher.png`): Bärlauch, Kirschbaum, Apfelbaum, Schlüsselblume, Gänseblümchen
-   - **Sommerblüher** (orange, `assets/icons/sun.png`): Wiesen-Rotklee, Vielblättrige Lupine, Gefleckte Taubnessel, Goldnessel, Weiße Taubnessel, Kriechender Hahnenfuß, Sommerlinde, Gänseblümchen
+   - **Frühblüher** (grün, `assets/icons/Fruehblueher.png`): Bärlauch ✅, Gänseblümchen ✅, Rosskastanie ✅, Vogelkirsche ✅, Schlüsselblume ✅, Schneeglöckchen 🔒, Leberblümchen 🔒
+   - **Sommerblüher** (orange, `assets/icons/sun.png`): Wiesen-Rotklee, Vielblättrige Lupine, Gefleckte Taubnessel, Goldnessel, Weiße Taubnessel, Kriechender Hahnenfuß, Sommerlinde
    - **Herbstblüher** (dunkelorange, `assets/icons/Herbstblueher.png`): Herbstzeitlose, Efeu
    - **Winterblüher** (blau, `assets/icons/Winterblueher.png`): Schneeglöckchen, Vogelmiere, Greiskraut
-   - Pflanzen ohne Daten und noch nicht bestimmte Pflanzen erscheinen als gesperrte Karten mit `???`.
-   - Das Gänseblümchen erscheint in beiden Welten (Frühblüher + Sommerblüher), da es fast ganzjährig blüht.
+   - ✅ = gesammelt (inHerbarium:true), 🔒 = noch nicht gefunden (kein PNG vorhanden)
 2. **Nach Pflanzenfamilien:** Sortiert nach botanischer Verwandtschaft.
 3. **Trophäen:** Dynamisch durch `renderTrophyTab()`. Gesperrte Items zeigen Unlock-Bedingung. Bei Freischalten einer neuen Trophäe erscheint `#trophyUnlockToast` — eine zentrierte Benachrichtigung mit PNG, Name und Beschreibung (3,2 s sichtbar).
 
@@ -382,29 +384,54 @@ Erledigte Aufträge wandern ans Ende der Liste. Der Backup-Auftrag bleibt ausgeb
 
 ## 12. Pflanzenpins auf der Karte
 
-Pins erscheinen **ausschließlich** für Pflanzen, die bereits vollständig bestimmt und in `herbarium[]` eingetragen sind. `updatePinPositions()` rechnet SVG-Koordinaten (ViewBox 460 × 820) auf CSS-Pixel um.
+**Saisonal:** `renderPins()` zeigt nur Pflanzen der aktiven Welt (`plants[id].world === activeWorldId`), die bereits in `herbarium[]` sind. Frühblüher verschwinden im Sommer von der Karte, bleiben aber im Herbarium. `updatePinPositions()` rechnet SVG-Koordinaten (ViewBox 460 × 820) auf CSS-Pixel um.
 
-**Darstellung:** Nur das Pflanzen-PNG steht auf der Karte — kein Name, kein Häkchen. Wer die Pflanze kennenlernen möchte, tippt auf das Bild → Mini-Karte öffnet sich.
-
-**Bodenschatten:** Kontaktschatten (kein Elevation-Effekt). `.pin-ground-shadow` liegt mit `margin-top: -10px` direkt unter der Pflanzenbasis; das Pflanzenbild selbst hat nur einen minimalen Ambient-Drop-Shadow (`0 0 3px`), der kein Schweben suggeriert.
+**Darstellung:** Nur das Pflanzen-PNG steht auf der Karte — kein Name, kein Häkchen. Tippen auf das Bild → Mini-Karte öffnet sich.
 
 **Aktuelle `pinData[]`:**
 
-| ID | Name | SVG-Koordinaten | Besonderheit |
+| ID | Welt | SVG-Koordinaten | Besonderheit |
 |----|------|----------------|--------------|
-| `gaenseblumchen` | Gänseblümchen | 210 / 440 | — |
-| `rotklee` | Wiesen-Rotklee | 400 / 455 | — |
-| `lupine` | Vielblättrige Lupine | 230 / 560 | — |
-| `kirschbaum` | Vogelkirsche | 350 / 245 | `large: true` → `.pin-plant-img--lg` (120 px statt 72 px) |
-| `gefleckte_taubnessel` | Gefleckte Taubnessel | 148 / 298 | — |
-| `goldnessel` | Goldnessel | 180 / 470 | — |
-| `weisse_taubnessel` | Weiße Taubnessel | 350 / 500 | — |
-| `hahnenfuss` | Kriechender Hahnenfuß | 120 / 530 | — |
-| `linde` | Sommerlinde | 310 / 350 | `large: true` |
+| `gefleckte_taubnessel` | Sommer | 148 / 298 | — |
+| `goldnessel` | Sommer | 180 / 470 | — |
+| `weisse_taubnessel` | Sommer | 350 / 500 | — |
+| `gaenseblumchen` | Frühling | 210 / 440 | — |
+| `rotklee` | Sommer | 400 / 455 | — |
+| `lupine` | Sommer | 230 / 560 | — |
+| `kirschbaum` | Frühling | 350 / 245 | `large: true` |
+| `hahnenfuss` | Sommer | 120 / 530 | — |
+| `linde` | Sommer | 310 / 350 | `large: true` |
+| `baerlauch` | Frühling | 95 / 360 | — |
+| `kastanienbaum` | Frühling | 290 / 195 | `large: true` |
+| `schlusselblume` | Frühling | 345 / 640 | — |
 
-**scanPool** (Pflanzen die per Kamera gescannt werden können): `gaenseblumchen`, `lupine`, `gefleckte_taubnessel`, `goldnessel`, `weisse_taubnessel`, `hahnenfuss`, `linde`. Die Vogelkirsche (Frühblüher) ist bewusst ausgeschlossen.
+**scanPool** (per Kamera scan-bar im Sommer): `lupine`, `gefleckte_taubnessel`, `goldnessel`, `weisse_taubnessel`, `hahnenfuss`, `linde`, `rotklee`.
 
-**Größen-Varianten:** `.pin-plant-img` = 72 px Breite (Standard). `.pin-plant-img--lg` = 120 px (Bäume / große Pflanzen). Gesteuert durch `large: true` im `pinData`-Eintrag → `renderPins()` setzt die Klasse dynamisch.
+**Größen-Varianten:** Standard 72 px, `large: true` → 120 px. In der Intro-Animation: Standard 62 px, `large: true` → 96 px.
+
+---
+
+## 12b. Saisonwechsel-Intro (Onboarding-Animation)
+
+Beim Öffnen des Prototyps erscheint einmalig eine **Intro-Karte** mit Florin, die den Spieler darüber informiert, dass die Frühblüher verblüht, aber im Herbarium verewigt sind und nächstes Frühjahr auf der Karte zurückkehren.
+
+### Ablauf nach „Okay"-Klick
+1. Intro-Karte faded aus (0,4 s)
+2. Beide Top-Badges wechseln auf Frühlingsgrün (`rgba(140,180,100,0.93)`)
+3. `#springColorOverlay` erscheint — identisches SVG wie die Karte, aber in Pastellgrün (`#dff0c0`) — und faded nach kurzem Hold langsam aus (4 s)
+4. Frühblüher-Pins (alle gesammelten, aus `pinData` gefiltert nach `world === 'frühblüher'`) erscheinen auf der Frühlingskarte, Bäume 96 px / Kräuter 62 px
+5. Pins faden nacheinander aus (je ~0,5 s, 500 ms Abstand)
+6. Toast **„Willkommen in der Sommerwelt!"** erscheint unten mittig (2,8 s)
+7. Beide Badges wechseln zurück zu Sommergrün (1,2 s Transition)
+
+### Beteiligte Elemente
+| Element | Zweck |
+|---------|-------|
+| `#seasonIntroOverlay` | Intro-Modal (z-index 500) |
+| `#springColorOverlay` | Frühlingsgrüne Karte als SVG (z-index 1) |
+| `#springPinsLayer` | Temporäre Frühblüher-Pins (z-index 5) |
+| `#summerToast` | Abschluss-Toast (dynamisch erstellt) |
+| `#levelBadge` + `.top-badge-season` | Farb-Transition Frühling → Sommer |
 
 ---
 
