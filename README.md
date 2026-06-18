@@ -434,30 +434,34 @@ Pins erscheinen **ausschließlich** für Pflanzen, die bereits vollständig best
 
 ## 14. Welten-Planeten-System
 
-3D-Kugel-Visualisierung des Sammelfortschritts. Zugänglich über den Sommer-Badge oben rechts.
+Kugel-Visualisierung des Sammelfortschritts. Zugänglich über den Sommer-Badge oben rechts.
 
 ### Trigger
 `.top-badge-season` → `openWeltenOverlay()`.
 
-### 3D-Kugel (aktive Welt: Sommerblüher)
+### Aktive Kugel (Sommerblüher)
 - `.welten-orbit-ring` (220 × 220 px), rotiert via `weltenPlanetSpin` (120 s)
-- `.welten-planet` (180 × 180 px): `radial-gradient` für Tiefeneffekt + `::after`-Pseudo-Element als Glanzpunkt oben-links
-- `.welten-planet-core` (`assets/icons/sun.png`, 52 px): gegendrehend via `weltenCoreStay` (60 s) — bleibt immer aufrecht
-- `.welten-orbit-plant`: Pflanzen rotieren **mit** der Kugel (keine Gegenrotation). Jede Pflanze bekommt bei der Platzierung eine initiale `transform: rotate(angleDeg + 90deg)`, sodass ihre Basis zum Kugelzentrum zeigt. Manche Pflanzen stehen beim Rotieren auf dem Kopf — gewollter Effekt. Positionen und Größen variieren je Slot (34–48 px, Radien 50–85 px).
+- `.welten-planet` (180 × 180 px): **plain Farbe** (kein 3D-Effekt, kein Gradient), nur weicher Außenschatten
+- `.welten-planet-core` (`assets/icons/sun.png`, 52 px): gegendrehend via `weltenCoreStay` — bleibt aufrecht
+- `.welten-orbit-plant`: Pflanzen rotieren mit der Kugel. Bäume (`large: true`) werden größer dargestellt als Kräuter/Blumen.
 
-### Inaktive Welten
-`.welten-mini-planet` (62 × 62 px, `opacity:0.60`, `grayscale(0.25)`). Klick → `showSeasonInfo(id)` → Saisoninfo-Popup.
+### Welten-Typen
+
+| Welt | Farbe | Typ | Verhalten beim Klick |
+|------|-------|-----|----------------------|
+| Sommerblüher | `#8aaa94` | aktiv | rückt wieder in Fokus |
+| Frühblüher | `#dff0c0` | vergangen (`past: true`) | tauscht in Fokus — zeigt alle 5 Frühblüher-PNGs rotierend, Core statisch |
+| Herbstblüher | `#d07030` | gesperrt | Popup „noch nicht verfügbar" |
+| Winterblüher | `#6898c8` | gesperrt | Popup „noch nicht verfügbar" |
+
+### Fokus-Wechsel
+`renderWeltenOverlay(focusId?)` — ohne Argument: Sommer im Fokus (Standard beim Öffnen). Mit `focusId`: die gewählte vergangene Welt rückt in die Mitte, alle anderen Welten erscheinen in der unteren Reihe. `showSeasonInfo(id)` leitet je nach Typ weiter.
 
 ### `worldDefs[]` Datenstruktur
-`{ id, name, iconImg, bg, miniColor, plants, active }`
-
-### Farben der Welten
-| Welt | Icon | Gradient |
-|------|------|----------|
-| Sommerblüher (aktiv) | `sun.png` | Mint-Grün `#d4eea0 → #8dc85a → #2e6a1e` |
-| Frühblüher | `Fruehblueher.png` | Warm-Gelb `#f5ee88 → #d4b820 → #6a5008` |
-| Herbstblüher | `Herbstblueher.png` | Terrakotta `#f0c07a → #d07030 → #5a1e06` |
-| Winterblüher | `Winterblueher.png` | Stahlblau `#b8d8f0 → #6898c8 → #102040` |
+`{ id, name, iconImg, bg, miniColor, plants, plantImgs?, past?, active }`
+- `plants`: Array von Pflanzen-IDs aus `plants[]` (aktive Welt)
+- `plantImgs`: Array von PNG-Pfaden direkt (vergangene Welten, z. B. `assets/Plants/Fruehblueher/*.png`)
+- `past: true`: Welt ist abgeschlossen — beim Klick wird sie in den Fokus gebracht statt ein Popup zu zeigen
 
 ---
 
