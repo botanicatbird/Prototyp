@@ -432,6 +432,8 @@ Beim Öffnen des Prototyps erscheint einmalig eine **Intro-Karte** mit Florin, d
 | `#springPinsLayer` | Temporäre Frühblüher-Pins (z-index 5) |
 | `#summerToast` | Abschluss-Toast (dynamisch erstellt) |
 | `#levelBadge` + `.top-badge-season` | Farb-Transition Frühling → Sommer |
+| `.left-nav` | Farb-Transition Frühling → Sommer |
+| `#scanBtn` (Kamera-FAB) | Farb-Transition Frühling → Sommer |
 
 ---
 
